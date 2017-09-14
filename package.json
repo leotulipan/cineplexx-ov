@@ -1,0 +1,23 @@
+{
+  "name": "kino_ov",
+  "version": "0.0.2",
+  "description": "Get Cineplexx.at OV listings",
+  "main": "cineplexx.js",
+  "dependencies": {
+    "lodash": "^4.17.4",
+    "request": "^2.81.0"
+  },
+  "devDependencies": {
+    "cheerio": "^0.22.0",
+    "request": "^2.81.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": {
+    "name": "Leonard Tulipan",
+    "email": "Leo@LeoTulipan.at",
+    "url": "http://LeoTulipan.at/"
+  },
+  "license": "Apache-2.0"
+}
