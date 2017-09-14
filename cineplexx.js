@@ -23,7 +23,8 @@ function getJsonFromUrl(url = location.href, hashBased = true) {
         part = part.split("+").join(" "); // replace every + with space, regexp-free version
         var eq = part.indexOf("=");
         var key = eq > -1 ? part.substr(0, eq) : part;
-        var val = eq > -1 ? decodeURIComponent(part.substr(eq + 1)) : "";
+        var val = eq > -1 ? decodeURIComponent(part.substr(eq + 1)) :
+            "";
         var from = key.indexOf("[");
         if (from == -1) result[decodeURIComponent(key)] = val;
         else {
@@ -37,7 +38,6 @@ function getJsonFromUrl(url = location.href, hashBased = true) {
     });
     return result;
 }
-
 
 let centerId = {
     6: 'Actors Studio',
@@ -70,7 +70,10 @@ let centerId = {
 // let OVcenter = [6, 8, 2, 75, 115]
 let OVcenter = [2]
 
-request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' + today + '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
+request(
+    'http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+    today +
+    '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
     // Get all available dates from the #date dropdown
     function (error, response, body) {
         // console.log('error:', error); // Print the error if one occurred
@@ -88,28 +91,38 @@ request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&dat
 dates = ['2017-09-14']
 dates.forEach(function (date) {
     OVcenter.forEach(function (center) {
-        request('http://www.cineplexx.at/service/program.php?type=program&centerId=' + center + '&date=' + date + '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
+        request(
+            'http://www.cineplexx.at/service/program.php?type=program&centerId=' +
+            center + '&date=' + date +
+            '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
             function (error, response, body) {
                 if (error)
                     console.log('Request error: ', error)
                 // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
                 const $ = cheerio.load(body)
 
-                namesOV = Array()
+                movies = {}
                 movieId = Array()
                 times = Array()
                 movie = Array()
 
-
                 // DE names = $("div.detailview-element div.info h2 a").text()
 
-                $("div.overview-element").map(function (i, el) {
-                    id = $(this).data("mainid")
-                    genreIds = $(this).data("genre")
-                    techId = $(this).data("technology")
+                movies = $("div.overview-element").map(function (i, el) {
                     name = $(this).find(".three-lines p").eq(0).text()
-                    console.log("id: " + id + "no: " + i)
+                    id = $(this).data("mainid")
+                    genreIds = String($(this).data("genre")).split(" ")
+
+                    return {
+                        name: name,
+                        id: id,
+                        genres: genreIds,
+                    }
                 }).get()
+
+                // tech varries for each prgid (screen)
+                // tech: {prgid: "1", tech: techId,},
+                // techId = $(this).data("technology")
 
                 // movieId = $(".start-times div.span3 a").map(function (i, el) {
                 //     // { center: '2',
@@ -120,44 +133,47 @@ dates.forEach(function (date) {
 
                 // }).get()
 
-                times = $("div.detailview-element div.overview-element>div.row").children('.span6').map(function (i, el) {
+                times = $(
+                    "div.detailview-element div.overview-element>div.row"
+                ).children('.span6').map(function (i, el) {
                     // get times, as the are in [ [] ] form return array element 0 and filter only Strings
                     // => Filter out undefined rows
-                    time = [$(this).find(".start-times p.time-desc").map(function (i, el) {
-                        return $(this).text().replace(/\s/g, '')
-                    }).get()].filter(String)[0]
+                    time = [$(this).find(
+                        ".start-times p.time-desc").map(
+                        function (i, el) {
+                            return $(this).text().replace(/\s/g,
+                                '')
+                        }).get()].filter(String)[0]
 
-                    ids = [$(this).find(".start-times p.time-desc span").map(function (i, el) {
-                        return $(this).data("status")
-                    }).get()].filter(String)[0]
+                    ids = [$(this).find(
+                        ".start-times p.time-desc span").map(
+                        function (i, el) {
+                            return $(this).data("status")
+                        }).get()].filter(String)[0]
 
                     // https://lodash.com/docs/4.17.4#zip
-                    return time != undefined ? _.zipObject(time, ids) : null
+                    return time != undefined ? _.zipObject(time,
+                        ids) : null
                 }).get()
 
+                //   times: [{ '16:15': '2_74583' },
+                //     { '15:45': '2_74574', '18:00': '2_74575', '20:15': '2_74576' },
+                //     { '15:45': '2_74586' },
+                //     { '15:45': '2_74577' },
+                //     { '17:45': '2_74578', '19:45': '2_74588' },
 
-                movie = _.zipObject(namesOV, movieId)
+                //   movies:
+                //     {
+                //       id: 145268,
+                //       genres: '3 9',
+                //       techId: 1,
+                //       name: 'The Hitman’s Bodyguard'
+                //     }
 
-                // console.dir(namesOV.length)
+                // films = _.zipObject(movies, times)
 
-                // { 'Atomic Blonde': { '20:45': '2_74534' },
-                // 'Baby Driver': { '16:15': '2_74535' },
-                // 'American Made': { '15:45': '2_74519', '18:00': '2_74525', '20:15': '2_74531' },
-                // Dunkirk: { '17:45': '2_74524' },
-                // 'The Emoji Movie': { '16:00': '2_74517' },
-                // 'Despicable Me 3': { '16:30': '2_74520' },
-                // 'An Inconvenient Sequel: Truth to Power': { '18:30': '2_74526', '20:30': '2_74532' },
-                // 'The Hitman’s Bodyguard': { '20:00': '2_74530' },
-                // 'My Cousin Rachel': { '18:15': '2_74521', '20:30': '2_74527' },
-                // 'The Circle': { '15:30': '2_74516', '17:45': '2_74523', '20:00': '2_74529' },
-                // 'The Limehouse Golem': { '18:30': '2_74528' },
-                // 'Tulip Fever': { '16:00': '2_74522' } }
-                films = _.zipObject(movie, times)
-
-                if (Object.getOwnPropertyNames(films).length > 0) {
-                    console.log(date + ": " + centerId[center])
-                    console.dir(films)
-                }
+                console.log(date + ": " + centerId[center])
+                console.dir(movies)
 
             }) // request
     }) // forEach center

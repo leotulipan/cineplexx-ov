@@ -29,28 +29,38 @@
 
 # Next Step
 
-- line 138 
-  build name, id object { name: 'Annabelle: Creation', id: '145027' } but for ALL movieId's
-- get the Kino-Saal for each time slot
-- technology + genre aus http://www.cineplexx.at/filme/jetzt-im-kino/
+- Date + Time + prgid, center, tech
+- lets build this object
+  { name: 'The Limehouse Golem',
+      id: 143539,
+      genres: [ '8', '14', '31' ],
+      showtimes: {
+        '2017-99-99': {
+          '16:30': [ {prgid: '74583', center: 2, techId: 1, seatsAvailable: 20, screen: "Saal 5"},
+                     {prgid: '74581', center: 104, techId: 1} ]
+          '20:00': [ {prgid: '74589', center: 2, techId: 5, seatsAvailable: 178, screen: "Saal 1"} ]
+        }
+        '2017-99-88': {
+          '18:15': [ {prgid: '66666', center: 100, techId: 1, seatsAvailable: 140, screen: "Saal 2"},
+      } }
+- get screen for prgid
+  - film data: span6[1] > span3
+      - url https://www.cineplexx.at/ticketing/?center=2&date=2017-09-12&movie=143827&prgid=74553
+- get avail seats for prgid
+- get technology + genre names http://www.cineplexx.at/filme/jetzt-im-kino/
   - span3 data-tech + data-genre
-  - span3 > p für die Namen
-- film data: span6[1] > span3
-    - url https://www.cineplexx.at/ticketing/?center=2&date=2017-09-12&movie=143827&prgid=74553
-    - filter out Kino-Saal we dont like - room -desc
-     
+  - span3 > p für die Namen     
      https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=info&center=2&movie=143827&date=2017-09-12&prgId=74553
       info({"date":"Heute, 12. September 2017","shortDate":"Heute, 12. Sep 2017","time":"20:45","technology":"Digital 2D","technologyId":1,"plan":"Saal 5","movieName":"Atomic Blonde","centerName":"Artis International","status":"green","category":"0","originalVersionType":"OV","prgCount":1,"events":[]})
-
-    - build technology array - data-technology="1" (ticketing URL)
+  - build technology array - data-technology="1" (ticketing URL)
         #ticketing-content > div.row > div.span5 > div > p
-    - build gentre array - data-genre="3 14"
+  - build gentre array - data-genre="3 14"
         (http://www.cineplexx.at/film/atomic-blonde/
          .filmdetails > table > tbody > tr:nth-child(5) > td:nth-child(2)
            <td>Genre:</td>
 						<td>Action, Thriller</td>
-
 - show available showtimes for each day in a table sorted by film (not centerID)
+- filter out Kino-Saal we dont like - room -desc
 - refactor to typescript
 - seats: array: check how many seats are available: https://www.cineplexx.at/service/ticketing.php?callback=jQuery19107128564620655915_1505196280356&center=2&prgId=74553&backendUrl=rest%2Fcinema%2Fseats&_=1505196280358
 seats[row][seat].status == 0 ? "available" : "reserved"
