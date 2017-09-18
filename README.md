@@ -27,23 +27,50 @@
 
 }
 
-# Next Step
-
-- Date + Time + prgid, center, tech
-- lets build this object
-  { name: 'The Limehouse Golem',
-      id: 143539,
-      genres: [ '8', '14', '31' ],
-      showtimes: {
-        '2017-99-99': {
-          '16:30': [ {prgid: '74583', center: 2, techId: 1, seatsAvailable: 20, screen: "Saal 5"},
-                     {prgid: '74581', center: 104, techId: 1} ]
-          '20:00': [ {prgid: '74589', center: 2, techId: 5, seatsAvailable: 178, screen: "Saal 1"} ]
+# Goal object:
+{
+name: 'The Limehouse Golem',
+id: 143539,
+genres: ['8', '14', '31'],
+showtimes: {
+    '2017-99-99': {
+        '16:30': [{
+                prgid: '74583',
+                center: 2,
+                techId: 1,
+                seatsAvailable: 20,
+                screen: "Saal 5"
+            },
+            {
+                prgid: '74581',
+                center: 104,
+                techId: 1
+            }
+        ]
+        '20:00': [{
+            prgid: '74589',
+            center: 2,
+            techId: 5,
+            seatsAvailable: 178,
+            screen: "Saal 1"
+        }]
+    }
+    '2017-99-88': {
+        '18:15': [{
+                prgid: '66666',
+                center: 100,
+                techId: 1,
+                seatsAvailable: 140,
+                screen: "Saal 2"
+            },
         }
-        '2017-99-88': {
-          '18:15': [ {prgid: '66666', center: 100, techId: 1, seatsAvailable: 140, screen: "Saal 2"},
-      } }
-- get screen for prgid
+    }
+# Next Step
+-  we have "times"
+ 2017-09-18: Artis International
+[ { '20:45': { prgId: '74668', center: '2', movieId: '143827' } },
+- join/rearrange times + movies for 1 center
+- get tech + screen for prgid
   - film data: span6[1] > span3
       - url https://www.cineplexx.at/ticketing/?center=2&date=2017-09-12&movie=143827&prgid=74553
 - get avail seats for prgid
@@ -59,6 +86,7 @@
          .filmdetails > table > tbody > tr:nth-child(5) > td:nth-child(2)
            <td>Genre:</td>
 						<td>Action, Thriller</td>
+- get data from multiple centers into "showtimes:"
 - show available showtimes for each day in a table sorted by film (not centerID)
 - filter out Kino-Saal we dont like - room -desc
 - refactor to typescript

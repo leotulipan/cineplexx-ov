@@ -70,8 +70,7 @@ let centerId = {
 // let OVcenter = [6, 8, 2, 75, 115]
 let OVcenter = [2]
 
-request(
-    'http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
     today +
     '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
     // Get all available dates from the #date dropdown
@@ -88,11 +87,10 @@ request(
     })
 
 // dates is not set here, because async - refactor into a TS class
-dates = ['2017-09-14']
+dates = [today]
 dates.forEach(function (date) {
     OVcenter.forEach(function (center) {
-        request(
-            'http://www.cineplexx.at/service/program.php?type=program&centerId=' +
+        request('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
             center + '&date=' + date +
             '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
             function (error, response, body) {
@@ -133,29 +131,31 @@ dates.forEach(function (date) {
 
                 // }).get()
 
-                times = $(
-                    "div.detailview-element div.overview-element>div.row"
-                ).children('.span6').map(function (i, el) {
+                times = $("div.detailview-element div.overview-element>div.row").children('.span6').map(function (i, el) {
                     // get times, as the are in [ [] ] form return array element 0 and filter only Strings
                     // => Filter out undefined rows
-                    time = [$(this).find(
-                        ".start-times p.time-desc").map(
+                    time = [$(this).find(".start-times p.time-desc").map(
                         function (i, el) {
-                            return $(this).text().replace(/\s/g,
-                                '')
+                            return $(this).text().replace(/\s/g, '')
                         }).get()].filter(String)[0]
 
-                    ids = [$(this).find(
-                        ".start-times p.time-desc span").map(
+                    show = [$(this).find("a").map(
                         function (i, el) {
-                            return $(this).data("status")
+                            return {
+                                prgId: getJsonFromUrl($(this).attr("href")).prgid,
+                                center: getJsonFromUrl($(this).attr("href")).center,
+                                movieId: getJsonFromUrl($(this).attr("href")).movie,
+                            }
                         }).get()].filter(String)[0]
+
+                    // ids = [$(this).find(".start-times p.time-desc span").map(
+                    //     function (i, el) {
+                    //         return $(this).data("status")
+                    //     }).get()].filter(String)[0]
 
                     // https://lodash.com/docs/4.17.4#zip
-                    return time != undefined ? _.zipObject(time,
-                        ids) : null
+                    return time != undefined ? _.zipObject(time, show) : null
                 }).get()
-
                 //   times: [{ '16:15': '2_74583' },
                 //     { '15:45': '2_74574', '18:00': '2_74575', '20:15': '2_74576' },
                 //     { '15:45': '2_74586' },
@@ -173,6 +173,7 @@ dates.forEach(function (date) {
                 // films = _.zipObject(movies, times)
 
                 console.log(date + ": " + centerId[center])
+                console.dir(times)
                 console.dir(movies)
 
             }) // request
