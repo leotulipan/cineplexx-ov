@@ -101,8 +101,9 @@ dates.forEach(function (date) {
 
                 movies = {}
                 movieId = Array()
-                times = Array()
+                programmes = Array()
                 movie = Array()
+
 
                 // DE names = $("div.detailview-element div.info h2 a").text()
 
@@ -131,50 +132,24 @@ dates.forEach(function (date) {
 
                 // }).get()
 
-                times = $("div.detailview-element div.overview-element>div.row").children('.span6').map(function (i, el) {
-                    // get times, as the are in [ [] ] form return array element 0 and filter only Strings
-                    // => Filter out undefined rows
-                    time = [$(this).find(".start-times p.time-desc").map(
-                        function (i, el) {
-                            return $(this).text().replace(/\s/g, '')
-                        }).get()].filter(String)[0]
+                programmes = [$("div.detailview-element div.overview-element>div.row")
+                    .children('.span6').find("a").map(function (i, el) {
+                        // console.log($(this).find("p").eq(0).text())
+                        return getJsonFromUrl($(this).attr("href")).movie != undefined ? {
+                            movieId: getJsonFromUrl($(this).attr("href")).movie,
+                            prgId: getJsonFromUrl($(this).attr("href")).prgid,
+                            center: getJsonFromUrl($(this).attr("href")).center,
+                            date: getJsonFromUrl($(this).attr("href")).date,
+                            time: $(this).find("p").eq(0).text().substr(1, 5),
+                            screenName: $(this).find("p.room-desc").text(),
+                        } : null;
+                    }).get()
+                ].filter(String)[0]
 
-                    show = [$(this).find("a").map(
-                        function (i, el) {
-                            return {
-                                prgId: getJsonFromUrl($(this).attr("href")).prgid,
-                                center: getJsonFromUrl($(this).attr("href")).center,
-                                movieId: getJsonFromUrl($(this).attr("href")).movie,
-                            }
-                        }).get()].filter(String)[0]
 
-                    // ids = [$(this).find(".start-times p.time-desc span").map(
-                    //     function (i, el) {
-                    //         return $(this).data("status")
-                    //     }).get()].filter(String)[0]
-
-                    // https://lodash.com/docs/4.17.4#zip
-                    return time != undefined ? _.zipObject(time, show) : null
-                }).get()
-                //   times: [{ '16:15': '2_74583' },
-                //     { '15:45': '2_74574', '18:00': '2_74575', '20:15': '2_74576' },
-                //     { '15:45': '2_74586' },
-                //     { '15:45': '2_74577' },
-                //     { '17:45': '2_74578', '19:45': '2_74588' },
-
-                //   movies:
-                //     {
-                //       id: 145268,
-                //       genres: '3 9',
-                //       techId: 1,
-                //       name: 'The Hitman’s Bodyguard'
-                //     }
-
-                // films = _.zipObject(movies, times)
-
-                console.log(date + ": " + centerId[center])
-                console.dir(times)
-                console.dir(movies)
+                // console.log(date + ": " + centerId[center])
+                console.dir(programmes)
+                // console.dir(movies)
 
             }) // request
     }) // forEach center

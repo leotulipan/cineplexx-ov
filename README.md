@@ -69,6 +69,12 @@ showtimes: {
 -  we have "times"
  2017-09-18: Artis International
 [ { '20:45': { prgId: '74668', center: '2', movieId: '143827' } },
+
+=>
+
+{ '143827': [ { prgId: '74668', center: '2', time: '20:45', date: '2017-09-18' },
+              { otherscreen } ],
+   '9999': ....
 - join/rearrange times + movies for 1 center
 - get tech + screen for prgid
   - film data: span6[1] > span3
