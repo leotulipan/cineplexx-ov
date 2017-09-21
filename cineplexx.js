@@ -100,9 +100,9 @@ dates.forEach(function (date) {
                 const $ = cheerio.load(body)
 
                 movies = {}
-                movieId = Array()
+                // movieId = Array()
                 programmes = Array()
-                movie = Array()
+                // movie = Array()
 
 
                 // DE names = $("div.detailview-element div.info h2 a").text()
@@ -132,20 +132,26 @@ dates.forEach(function (date) {
 
                 // }).get()
 
-                programmes = [$("div.detailview-element div.overview-element>div.row")
-                    .children('.span6').find("a").map(function (i, el) {
-                        // console.log($(this).find("p").eq(0).text())
-                        return getJsonFromUrl($(this).attr("href")).movie != undefined ? {
-                            movieId: getJsonFromUrl($(this).attr("href")).movie,
-                            prgId: getJsonFromUrl($(this).attr("href")).prgid,
-                            center: getJsonFromUrl($(this).attr("href")).center,
-                            date: getJsonFromUrl($(this).attr("href")).date,
-                            time: $(this).find("p").eq(0).text().substr(1, 5),
-                            screenName: $(this).find("p.room-desc").text(),
-                        } : null;
-                    }).get()
-                ].filter(String)[0]
+                programmes = [$(".overview-element .start-times a").map(function (i, el) {
 
+                    // request($(this).attr("href"), function (error, response, body) {
+                    //     if (error)
+                    //         console.log('ticketungUrl Request error: ', error)
+                    //     // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+                    //     const $ = cheerio.load(body)
+                    //     console.log("film data", $("span6[1] > span3").text())
+                    // })
+
+                    return getJsonFromUrl($(this).attr("href")).movie != undefined ? {
+                        movieId: getJsonFromUrl($(this).attr("href")).movie,
+                        prgId: getJsonFromUrl($(this).attr("href")).prgid,
+                        center: getJsonFromUrl($(this).attr("href")).center,
+                        date: getJsonFromUrl($(this).attr("href")).date,
+                        time: $(this).find("p").eq(0).text().substr(1, 5),
+                        screenName: $(this).find("p.room-desc").text(),
+                        ticketingUrl: $(this).attr("href"),
+                    } : null;
+                }).get()].filter(String)[0]
 
                 // console.log(date + ": " + centerId[center])
                 console.dir(programmes)
