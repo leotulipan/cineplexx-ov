@@ -109,12 +109,12 @@ dates.forEach(function (date) {
 
                 movies = $("div.overview-element").map(function (i, el) {
                     name = $(this).find(".three-lines p").eq(0).text()
-                    id = $(this).data("mainid")
+                    movieId = $(this).data("mainid")
                     genreIds = String($(this).data("genre")).split(" ")
 
                     return {
                         name: name,
-                        id: id,
+                        movieId: movieId,
                         genres: genreIds,
                     }
                 }).get()
@@ -134,6 +134,12 @@ dates.forEach(function (date) {
 
                 programmes = [$(".overview-element .start-times a").map(function (i, el) {
 
+                    movieId = getJsonFromUrl($(this).attr("href")).movie
+                    prgId = getJsonFromUrl($(this).attr("href")).prgid
+                    center = getJsonFromUrl($(this).attr("href")).center
+                    date = getJsonFromUrl($(this).attr("href")).date
+
+                    tech_and_plan_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
                     // request($(this).attr("href"), function (error, response, body) {
                     //     if (error)
@@ -144,13 +150,13 @@ dates.forEach(function (date) {
                     // })
 
                     return {
-                        movieId: getJsonFromUrl($(this).attr("href")).movie,
-                        prgId: getJsonFromUrl($(this).attr("href")).prgid,
-                        center: getJsonFromUrl($(this).attr("href")).center,
-                        date: getJsonFromUrl($(this).attr("href")).date,
-                        time: $(this).find("p").eq(0).text().substr(1, 5),
-                        screenName: $(this).find("p.room-desc").text(),
-                        ticketingUrl: $(this).attr("href"),
+                        movieId: movieId,
+                        prgId: prgId,
+                        center: center,
+                        date: date,
+                        // time: $(this).find("p").eq(0).text().substr(1, 5),
+                        // plan: $(this).find("p.room-desc").text(),
+                        ticketingUrl: tech_and_plan_url,
                     }
                 }).get()].filter(String)[0]
 
