@@ -138,8 +138,9 @@ dates.forEach(function (date) {
                     prgId = getJsonFromUrl($(this).attr("href")).prgid
                     center = getJsonFromUrl($(this).attr("href")).center
                     date = getJsonFromUrl($(this).attr("href")).date
+                    ticketMovieInfo = {}
 
-                    tech_and_plan_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
+                    ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
                     // request($(this).attr("href"), function (error, response, body) {
                     //     if (error)
@@ -148,7 +149,39 @@ dates.forEach(function (date) {
                     //     const $ = cheerio.load(body)
                     //     console.log("film data: " + $(".span6").eq(1).find(".span3").text())
                     // })
+                    // t = ({
+                    //     "time": "20:00",
+                    //     "technology": "Digital 2D",
+                    //     "technologyId": 1,
+                    //     "plan": "Saal 2",
+                    //     "status": "green",
+                    // })
 
+                    request(ticketMovieInfo_url, function (error, response, body) {
+                        ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
+                        // { date: 'Heute, 22. September 2017',
+                        // shortDate: 'Heute, 22. Sep 2017',
+                        // time: '17:30',
+                        // technology: 'Digital 2D',
+                        // technologyId: 1,
+                        // plan: 'Saal 5',
+                        // movieName: 'Schloss aus Glas',
+                        // centerName: 'Artis International',
+                        // status: 'green',
+                        // category: '0',
+                        // originalVersionType: 'OV',
+                        // prgCount: 1,
+                        // next:
+                        //  { date: 'Heute, 22. September 2017',
+                        //    shortDate: 'Heute, 22. Sep 2017',
+                        //    dateId: '2017-09-22',
+                        //    time: '20:00',
+                        //    plan: 'Saal 5',
+                        //    prgId: 74839 },
+                        // events: [] }
+
+                    })
+                    console.dir(ticketMovieInfo)
                     return {
                         movieId: movieId,
                         prgId: prgId,
@@ -156,7 +189,7 @@ dates.forEach(function (date) {
                         date: date,
                         // time: $(this).find("p").eq(0).text().substr(1, 5),
                         // plan: $(this).find("p.room-desc").text(),
-                        ticketingUrl: tech_and_plan_url,
+                        ticketMovieInfo_url: ticketMovieInfo_url,
                     }
                 }).get()].filter(String)[0]
 

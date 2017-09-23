@@ -76,11 +76,7 @@ showtimes: {
     
 - get tech + screen for prgid
 
-https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=jQuery19102461141216697098_1505981639843&center=2&movie=137032&date=2017-09-21&prgId=74723&_=1505981639844
-=> movieID + prgid + date
-https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=2&movie=146125&date=2017-09-21&prgId=74715
-
-t({"date":"Heute, 21. September 2017","shortDate":"Heute, 21. Sep 2017","time":"20:00","technology":"Digital 2D","technologyId":1,"plan":"Saal 2","movieName":"Mother!","centerName":"Artis International","status":"green","category":"0","originalVersionType":"OV","prgCount":1,"next":{"date":"Morgen, 22. September 2017","shortDate":"Morgen, 22. Sep 2017","dateId":"2017-09-22","time":"17:30","plan":"Saal 4","prgId":74804},"prev":{"date":"Heute, 21. September 2017","shortDate":"Heute, 21. Sep 2017","dateId":"2017-09-21","time":"17:30","plan":"Saal 2","prgId":74714},"events":[]})
+line 151 - request must be sync (async problem)
 
 - get avail seats for prgid from seats array:
 
