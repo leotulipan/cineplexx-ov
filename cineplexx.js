@@ -100,12 +100,7 @@ dates.forEach(function (date) {
                 const $ = cheerio.load(body)
 
                 movies = {}
-                // movieId = Array()
                 programmes = Array()
-                // movie = Array()
-
-
-                // DE names = $("div.detailview-element div.info h2 a").text()
 
                 movies = $("div.overview-element").map(function (i, el) {
                     name = $(this).find(".three-lines p").eq(0).text()
@@ -119,19 +114,6 @@ dates.forEach(function (date) {
                     }
                 }).get()
 
-                // tech varries for each prgid (screen)
-                // tech: {prgid: "1", tech: techId,},
-                // techId = $(this).data("technology")
-
-                // movieId = $(".start-times div.span3 a").map(function (i, el) {
-                //     // { center: '2',
-                //     // date: '2017-09-13',
-                //     // movie: '145027',
-                //     // prgid: '74563' }
-                //     return getJsonFromUrl($(this).attr("href")).movie
-
-                // }).get()
-
                 programmes = [$(".overview-element .start-times a").map(function (i, el) {
 
                     movieId = getJsonFromUrl($(this).attr("href")).movie
@@ -141,21 +123,6 @@ dates.forEach(function (date) {
                     ticketMovieInfo = {}
 
                     ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
-
-                    // request($(this).attr("href"), function (error, response, body) {
-                    //     if (error)
-                    //         console.log('ticketungUrl Request error: ', error)
-                    //     // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-                    //     const $ = cheerio.load(body)
-                    //     console.log("film data: " + $(".span6").eq(1).find(".span3").text())
-                    // })
-                    // t = ({
-                    //     "time": "20:00",
-                    //     "technology": "Digital 2D",
-                    //     "technologyId": 1,
-                    //     "plan": "Saal 2",
-                    //     "status": "green",
-                    // })
 
                     request(ticketMovieInfo_url, function (error, response, body) {
                         ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
@@ -180,8 +147,14 @@ dates.forEach(function (date) {
                         //    prgId: 74839 },
                         // events: [] }
 
+                        // here we get the json
+                        console.dir(ticketMovieInfo)
+
                     })
+
+                    // here we dont
                     console.dir(ticketMovieInfo)
+
                     return {
                         movieId: movieId,
                         prgId: prgId,
