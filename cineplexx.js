@@ -1,4 +1,4 @@
-var _ = require('lodash');
+// var _ = require('lodash');
 let request = require('request')
 // https://github.com/cheeriojs/cheerio
 let cheerio = require('cheerio')
