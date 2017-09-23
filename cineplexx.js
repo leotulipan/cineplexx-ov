@@ -102,17 +102,17 @@ dates.forEach(function (date) {
                 movies = {}
                 programmes = Array()
 
-                movies = $("div.overview-element").map(function (i, el) {
+                $("div.overview-element").map(function (i, el) {
                     name = $(this).find(".three-lines p").eq(0).text()
                     movieId = $(this).data("mainid")
                     genreIds = String($(this).data("genre")).split(" ")
 
-                    return {
+                    return movies[movieId] = {
                         name: name,
-                        movieId: movieId,
                         genres: genreIds,
                     }
-                }).get()
+
+                })
 
                 programmes = [$(".overview-element .start-times a").map(function (i, el) {
 
@@ -156,16 +156,17 @@ dates.forEach(function (date) {
                         programmes[i]["technologyId"] = ticketMovieInfo.technologyId
                         programmes[i]["time"] = ticketMovieInfo.time
                         programmes[i]["status"] = ticketMovieInfo.status
+                        programmes[i]["name"] = movies[programmes[i]["movieId"]].name
+                        programmes[i]["genres"] = movies[programmes[i]["movieId"]].genres
 
                         // works here
-                        // console.dir(movie)
                         console.dir(programmes[i])
 
                     })
                 })
 
                 // not here, because async
-                console.dir(programmes)
+                // console.dir(programmes)
 
             }) // request
     }) // forEach center
