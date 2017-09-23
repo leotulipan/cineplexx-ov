@@ -124,37 +124,6 @@ dates.forEach(function (date) {
 
                     ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
-                    request(ticketMovieInfo_url, function (error, response, body) {
-                        ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
-                        // { date: 'Heute, 22. September 2017',
-                        // shortDate: 'Heute, 22. Sep 2017',
-                        // time: '17:30',
-                        // technology: 'Digital 2D',
-                        // technologyId: 1,
-                        // plan: 'Saal 5',
-                        // movieName: 'Schloss aus Glas',
-                        // centerName: 'Artis International',
-                        // status: 'green',
-                        // category: '0',
-                        // originalVersionType: 'OV',
-                        // prgCount: 1,
-                        // next:
-                        //  { date: 'Heute, 22. September 2017',
-                        //    shortDate: 'Heute, 22. Sep 2017',
-                        //    dateId: '2017-09-22',
-                        //    time: '20:00',
-                        //    plan: 'Saal 5',
-                        //    prgId: 74839 },
-                        // events: [] }
-
-                        // here we get the json
-                        console.dir(ticketMovieInfo)
-
-                    })
-
-                    // here we dont
-                    console.dir(ticketMovieInfo)
-
                     return {
                         movieId: movieId,
                         prgId: prgId,
@@ -166,9 +135,37 @@ dates.forEach(function (date) {
                     }
                 }).get()].filter(String)[0]
 
-                // console.log(date + ": " + centerId[center])
+                programmes.forEach(function (program, i) {
+
+                    request(program.ticketMovieInfo_url, function (error, response, body) {
+                        ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
+
+                        // { date: 'Heute, 22. September 2017',
+                        // time: '17:30',
+                        // technology: 'Digital 2D',
+                        // technologyId: 1,
+                        // plan: 'Saal 5',
+                        // status: 'green',
+                        // prgCount: 1,
+                        // next:
+                        //  { ... },
+                        // events: [] }
+
+                        programmes[i]["plan"] = ticketMovieInfo.plan
+                        programmes[i]["technology"] = ticketMovieInfo.technology
+                        programmes[i]["technologyId"] = ticketMovieInfo.technologyId
+                        programmes[i]["time"] = ticketMovieInfo.time
+                        programmes[i]["status"] = ticketMovieInfo.status
+
+                        // works here
+                        // console.dir(movie)
+                        console.dir(programmes[i])
+
+                    })
+                })
+
+                // not here, because async
                 console.dir(programmes)
-                // console.dir(movies)
 
             }) // request
     }) // forEach center
