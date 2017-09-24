@@ -1,11 +1,8 @@
-// var _ = require('lodash');
-let request = require('request')
+import request = require('request')
 // https://github.com/cheeriojs/cheerio
-let cheerio = require('cheerio')
-let film = []
-let fs = require('fs')
-let today = new Date().toJSON().slice(0, 10)
-let dates = Array();
+import cheerio = require('cheerio')
+import * as fs from "fs"
+// import _ = require('lodash')
 
 // Based on https://stackoverflow.com/a/8486188/1440255
 function getJsonFromUrl(url = location.href, hashBased = true) {
@@ -39,7 +36,10 @@ function getJsonFromUrl(url = location.href, hashBased = true) {
     return result;
 }
 
-let centerId = {
+
+var today = new Date().toJSON().slice(0, 10)
+var dates = Array();
+var centerId = {
     6: 'Actors Studio',
     8: 'Apollo - Das Kino',
     2: 'Artis International',
@@ -68,7 +68,9 @@ let centerId = {
 }
 
 // let OVcenter = [6, 8, 2, 75, 115]
-let OVcenter = [2]
+var OVcenter = [2]
+var movies = {}
+var programmes = Array()
 
 request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
     today +
@@ -103,9 +105,9 @@ dates.forEach(function (date) {
                 programmes = Array()
 
                 $("div.overview-element").map(function (i, el) {
-                    name = $(this).find(".three-lines p").eq(0).text()
-                    movieId = $(this).data("mainid")
-                    genreIds = String($(this).data("genre")).split(" ")
+                    let name = $(this).find(".three-lines p").eq(0).text()
+                    let movieId = $(this).data("mainid")
+                    let genreIds = String($(this).data("genre")).split(" ")
 
                     return movies[movieId] = {
                         name: name,
@@ -116,13 +118,13 @@ dates.forEach(function (date) {
 
                 programmes = [$(".overview-element .start-times a").map(function (i, el) {
 
-                    movieId = getJsonFromUrl($(this).attr("href")).movie
-                    prgId = getJsonFromUrl($(this).attr("href")).prgid
+                    let movieId = getJsonFromUrl($(this).attr("href")).movie
+                    let prgId = getJsonFromUrl($(this).attr("href")).prgid
                     center = getJsonFromUrl($(this).attr("href")).center
                     date = getJsonFromUrl($(this).attr("href")).date
-                    ticketMovieInfo = {}
+                    var ticketMovieInfo = {}
 
-                    ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
+                    let ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
                     return {
                         movieId: movieId,
@@ -138,7 +140,7 @@ dates.forEach(function (date) {
                 programmes.forEach(function (program, i) {
 
                     request(program.ticketMovieInfo_url, function (error, response, body) {
-                        ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
+                        let ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
 
                         // { date: 'Heute, 22. September 2017',
                         // time: '17:30',
