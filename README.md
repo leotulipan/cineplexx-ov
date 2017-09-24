@@ -106,6 +106,8 @@ s({"seats":[[{"row":"1","rowName":"1","seat":"1","category":"1","color":"#99ccff
 - show available showtimes for each day in a table sorted by film (not centerID)
 - filter out Kino-Saal we dont like - room -desc
 - refactor to typescript
+    https://code.visualstudio.com/docs/languages/typescript
+    https://stackoverflow.com/questions/29996145/visual-studio-code-compile-on-save
 - seats: array: check how many seats are available: https://www.cineplexx.at/service/ticketing.php?callback=jQuery19107128564620655915_1505196280356&center=2&prgId=74553&backendUrl=rest%2Fcinema%2Fseats&_=1505196280358
 seats[row][seat].status == 0 ? "available" : "reserved"
 - program/film status green array http://www.cineplexx.at/service/dynamicFilterData.php?callback=status&movie=143827
