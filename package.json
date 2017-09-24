@@ -8,6 +8,7 @@
     "request": "^2.81.0"
   },
   "devDependencies": {
+    "@types/node": "^8.0.30",
     "cheerio": "^0.22.0",
     "request": "^2.81.0"
   },
