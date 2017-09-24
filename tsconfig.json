@@ -1,14 +1,29 @@
 {
+    "compileOnSave": true,
     "compilerOptions": {
+        "rootDir": "src",
         "target": "es5",
         "module": "commonjs",
         "outDir": "js/",
         "sourceMap": true,
-        "watch": true
+        "watch": true,
+        "typeRoots": [
+            "node_modules/@types"
+        ],
+        "paths": {
+            "src/*": ["src/*"]
+        }
     },
     "exclude": [
         "node_modules",
         "typings/browser.d.ts",
         "typings/browser"
+    ],
+    "filesGlob": [
+        "./src/**/*.ts",
+        "./test/**/*.ts",
+        "./typings/index.d.ts",
+        "./custom_typings/**/*.d.ts",
+        "./node_modules/@types/**/*.d.ts"
     ]
 }
