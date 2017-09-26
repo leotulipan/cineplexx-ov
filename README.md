@@ -9,7 +9,6 @@
 }
 
 
-
 { name: 'Going in style',
   name.DE: 'Deutscher Titel',
   '2017-05-24': {
@@ -65,18 +64,9 @@ showtimes: {
             },
         }
     }
-# Next Step
--  we have "programmes"
-  { movieId: '142369',
-    prgId: '74726',
-    center: '2',
-    date: '2017-09-21',
-    time: '20:30',
-    screenName: 'Saal 6' }
-    
-- get tech + screen for prgid
 
-line 151 - request must be sync (async problem)
+# Next Step
+- chain request with named functions after getData()
 
 - get avail seats for prgid from seats array:
 
@@ -124,12 +114,13 @@ See also https://stackoverflow.com/questions/33535879/how-to-run-typescript-file
 
 ## Compile (and watch) Typescript:
 
+    CTRL-SHIFT-B in Visual Studio Code (Build Task)
     tsc -w cineplexx.ts
 
 ## Run:
 
     # save current html file
-    wget -O cineplexx-programm.html "http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=`date "+%Y-%m-%d"`&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail"
+    wget -O test/cineplexx-programm.html "http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=`date "+%Y-%m-%d"`&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail"
     # run code
-    node cineplexx
+    node js/cineplexx
 
