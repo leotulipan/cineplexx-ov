@@ -66,7 +66,10 @@ showtimes: {
     }
 
 # Next Step
-- chain request with named functions after getData()
+- chain request programDetails
+- refactor chain -> observables
+    https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
+    http://reactivex.io/rxjs/manual/overview.html
 
 - get avail seats for prgid from seats array:
 

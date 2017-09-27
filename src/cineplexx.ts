@@ -105,14 +105,24 @@ class Cineplexx {
         this._dates = value;
     }
 
-
-    // public static async getData(): Promise<Cineplexx> {
-    //     await Promise.all(this.setDates())
-    //     return this
-
-    // }
-    public centerName(center) {
+    public getCenterName(center) {
         return this._centerIds[center]
+    }
+
+    public get movies(): {} {
+        return this._movies;
+    }
+
+    public set movies(value: {}) {
+        this._movies = value;
+    }
+
+    public get programmes(): Array < {} > {
+        return this._programmes;
+    }
+
+    public set programmes(value: Array < {} > ) {
+        this._programmes = value;
     }
 
 } // class Cineplexx
@@ -146,7 +156,8 @@ function getData() {
 
             cineplexx.dates.forEach((date) => {
                 cineplexx.OVcenter.forEach((center) => {
-                    console.log("Checking \'" + cineplexx.centerName(center) + "\' on " + date)
+                    console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
+                    getMovies(center, date)
 
                     // next function in the chain
                     // chain();
@@ -157,8 +168,7 @@ function getData() {
         })
 }
 
-function chain() {
-
+function getMovies(center, date) {
 
     request('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
         center + '&date=' + date +
@@ -169,9 +179,7 @@ function chain() {
             // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
             const $ = cheerio.load(body)
 
-            movies = {}
-            programmes = Array()
-
+            let movies = {}
             $("div.overview-element").map(function (i, el) {
                 let name = $(this).find(".three-lines p").eq(0).text()
                 let movieId = $(this).data("mainid")
@@ -181,64 +189,72 @@ function chain() {
                     name: name,
                     genres: genreIds,
                 }
-
             })
+            cineplexx.movies = movies
+            console.dir(cineplexx.movies)
+            getProgrammes($)
+        })
+}
 
-            programmes = [$(".overview-element .start-times a").map(function (i, el) {
+function getProgrammes(htmlBody) {
 
-                let movieId = getJsonFromUrl($(this).attr("href")).movie
-                let prgId = getJsonFromUrl($(this).attr("href")).prgid
-                center = getJsonFromUrl($(this).attr("href")).center
-                date = getJsonFromUrl($(this).attr("href")).date
-                var ticketMovieInfo = {}
+    cineplexx.programmes = [htmlBody(".overview-element .start-times a").map(function (i, el) {
 
-                let ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
+        let movieId = getJsonFromUrl(htmlBody(this).attr("href")).movie
+        let prgId = getJsonFromUrl(htmlBody(this).attr("href")).prgid
+        let center = getJsonFromUrl(htmlBody(this).attr("href")).center
+        let date = getJsonFromUrl(htmlBody(this).attr("href")).date
+        let ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
-                return {
-                    movieId: movieId,
-                    prgId: prgId,
-                    center: center,
-                    date: date,
-                    // time: $(this).find("p").eq(0).text().substr(1, 5),
-                    // plan: $(this).find("p.room-desc").text(),
-                    ticketMovieInfo_url: ticketMovieInfo_url,
-                }
-            }).get()].filter(String)[0]
+        return {
+            movieId: movieId,
+            prgId: prgId,
+            center: center,
+            date: date,
+            // time: $(this).find("p").eq(0).text().substr(1, 5),
+            // plan: $(this).find("p.room-desc").text(),
+            ticketMovieInfo_url: ticketMovieInfo_url,
+        }
+    }).get()].filter(String)[0]
+    console.dir(cineplexx.programmes)
+    console.log("end getProgrammes")
+}
 
-            programmes.forEach(function (program, i) {
+function getProgramDetails() {
+    programmes.forEach(function (program, i) {
 
-                request(program.ticketMovieInfo_url, function (error, response, body) {
-                    let ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
+        request(program.ticketMovieInfo_url, function (error, response, body) {
+            let ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3))
 
-                    // { date: 'Heute, 22. September 2017',
-                    // time: '17:30',
-                    // technology: 'Digital 2D',
-                    // technologyId: 1,
-                    // plan: 'Saal 5',
-                    // status: 'green',
-                    // prgCount: 1,
-                    // next:
-                    //  { ... },
-                    // events: [] }
+            // { date: 'Heute, 22. September 2017',
+            // time: '17:30',
+            // technology: 'Digital 2D',
+            // technologyId: 1,
+            // plan: 'Saal 5',
+            // status: 'green',
+            // prgCount: 1,
+            // next:
+            //  { ... },
+            // events: [] }
 
-                    programmes[i]["plan"] = ticketMovieInfo.plan
-                    programmes[i]["technology"] = ticketMovieInfo.technology
-                    programmes[i]["technologyId"] = ticketMovieInfo.technologyId
-                    programmes[i]["time"] = ticketMovieInfo.time
-                    programmes[i]["status"] = ticketMovieInfo.status
-                    programmes[i]["name"] = movies[programmes[i]["movieId"]].name
-                    programmes[i]["genres"] = movies[programmes[i]["movieId"]].genres
+            programmes[i]["plan"] = ticketMovieInfo.plan
+            programmes[i]["technology"] = ticketMovieInfo.technology
+            programmes[i]["technologyId"] = ticketMovieInfo.technologyId
+            programmes[i]["time"] = ticketMovieInfo.time
+            programmes[i]["status"] = ticketMovieInfo.status
+            programmes[i]["name"] = movies[programmes[i]["movieId"]].name
+            programmes[i]["genres"] = movies[programmes[i]["movieId"]].genres
 
-                    // works here
-                    console.dir(programmes[i])
+            // works here
+            console.dir(programmes[i])
 
-                })
-            })
+        })
+    })
 
-            // not here, because async
-            // console.dir(programmes)
+    // not here, because async
+    // console.dir(programmes)
 
-        }) // request
+}) // request
 
 
 }

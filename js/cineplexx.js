@@ -105,13 +105,29 @@ var Cineplexx = (function () {
         enumerable: true,
         configurable: true
     });
-    // public static async getData(): Promise<Cineplexx> {
-    //     await Promise.all(this.setDates())
-    //     return this
-    // }
-    Cineplexx.prototype.centerName = function (center) {
+    Cineplexx.prototype.getCenterName = function (center) {
         return this._centerIds[center];
     };
+    Object.defineProperty(Cineplexx.prototype, "movies", {
+        get: function () {
+            return this._movies;
+        },
+        set: function (value) {
+            this._movies = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(Cineplexx.prototype, "programmes", {
+        get: function () {
+            return this._programmes;
+        },
+        set: function (value) {
+            this._programmes = value;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return Cineplexx;
 }()); // class Cineplexx
 var cineplexx = new Cineplexx();
@@ -136,14 +152,15 @@ function getData() {
         cineplexx.dates = [cineplexx.today];
         cineplexx.dates.forEach(function (date) {
             cineplexx.OVcenter.forEach(function (center) {
-                console.log("Checking \'" + cineplexx.centerName(center) + "\' on " + date);
+                console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date);
+                getMovies(center, date);
                 // next function in the chain
                 // chain();
             });
         });
     });
 }
-function chain() {
+function getMovies(center, date) {
     request('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
         center + '&date=' + date +
         '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail', function (error, response, body) {
@@ -151,8 +168,7 @@ function chain() {
             console.log('Request error: ', error);
         // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
         var $ = cheerio.load(body);
-        movies = {};
-        programmes = Array();
+        var movies = {};
         $("div.overview-element").map(function (i, el) {
             var name = $(this).find(".three-lines p").eq(0).text();
             var movieId = $(this).data("mainid");
@@ -162,49 +178,57 @@ function chain() {
                 genres: genreIds,
             };
         });
-        programmes = [$(".overview-element .start-times a").map(function (i, el) {
-                var movieId = getJsonFromUrl($(this).attr("href")).movie;
-                var prgId = getJsonFromUrl($(this).attr("href")).prgid;
-                center = getJsonFromUrl($(this).attr("href")).center;
-                date = getJsonFromUrl($(this).attr("href")).date;
-                var ticketMovieInfo = {};
-                var ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId;
-                return {
-                    movieId: movieId,
-                    prgId: prgId,
-                    center: center,
-                    date: date,
-                    // time: $(this).find("p").eq(0).text().substr(1, 5),
-                    // plan: $(this).find("p.room-desc").text(),
-                    ticketMovieInfo_url: ticketMovieInfo_url,
-                };
-            }).get()].filter(String)[0];
-        programmes.forEach(function (program, i) {
-            request(program.ticketMovieInfo_url, function (error, response, body) {
-                var ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3));
-                // { date: 'Heute, 22. September 2017',
-                // time: '17:30',
-                // technology: 'Digital 2D',
-                // technologyId: 1,
-                // plan: 'Saal 5',
-                // status: 'green',
-                // prgCount: 1,
-                // next:
-                //  { ... },
-                // events: [] }
-                programmes[i]["plan"] = ticketMovieInfo.plan;
-                programmes[i]["technology"] = ticketMovieInfo.technology;
-                programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
-                programmes[i]["time"] = ticketMovieInfo.time;
-                programmes[i]["status"] = ticketMovieInfo.status;
-                programmes[i]["name"] = movies[programmes[i]["movieId"]].name;
-                programmes[i]["genres"] = movies[programmes[i]["movieId"]].genres;
-                // works here
-                console.dir(programmes[i]);
-            });
+        cineplexx.movies = movies;
+        console.dir(cineplexx.movies);
+        getProgrammes($);
+    });
+}
+function getProgrammes(htmlBody) {
+    cineplexx.programmes = [htmlBody(".overview-element .start-times a").map(function (i, el) {
+            var movieId = getJsonFromUrl(htmlBody(this).attr("href")).movie;
+            var prgId = getJsonFromUrl(htmlBody(this).attr("href")).prgid;
+            var center = getJsonFromUrl(htmlBody(this).attr("href")).center;
+            var date = getJsonFromUrl(htmlBody(this).attr("href")).date;
+            var ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId;
+            return {
+                movieId: movieId,
+                prgId: prgId,
+                center: center,
+                date: date,
+                // time: $(this).find("p").eq(0).text().substr(1, 5),
+                // plan: $(this).find("p.room-desc").text(),
+                ticketMovieInfo_url: ticketMovieInfo_url,
+            };
+        }).get()].filter(String)[0];
+    console.dir(cineplexx.programmes);
+    console.log("end getProgrammes");
+}
+function getProgramDetails() {
+    programmes.forEach(function (program, i) {
+        request(program.ticketMovieInfo_url, function (error, response, body) {
+            var ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3));
+            // { date: 'Heute, 22. September 2017',
+            // time: '17:30',
+            // technology: 'Digital 2D',
+            // technologyId: 1,
+            // plan: 'Saal 5',
+            // status: 'green',
+            // prgCount: 1,
+            // next:
+            //  { ... },
+            // events: [] }
+            programmes[i]["plan"] = ticketMovieInfo.plan;
+            programmes[i]["technology"] = ticketMovieInfo.technology;
+            programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
+            programmes[i]["time"] = ticketMovieInfo.time;
+            programmes[i]["status"] = ticketMovieInfo.status;
+            programmes[i]["name"] = movies[programmes[i]["movieId"]].name;
+            programmes[i]["genres"] = movies[programmes[i]["movieId"]].genres;
+            // works here
+            console.dir(programmes[i]);
         });
-        // not here, because async
-        // console.dir(programmes)
-    }); // request
+    });
+    // not here, because async
+    // console.dir(programmes)
 }
 //# sourceMappingURL=cineplexx.js.map
