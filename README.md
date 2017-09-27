@@ -68,8 +68,10 @@ showtimes: {
 # Next Step
 - chain request programDetails
 - refactor chain -> observables
+    https://www.youtube.com/watch?v=Tux1nhBPl_w
     https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
     http://reactivex.io/rxjs/manual/overview.html
+    https://www.academind.com/articles/javascript/callbacks-promises-observables-async-await
 
 - get avail seats for prgid from seats array:
 
