@@ -2,7 +2,9 @@ import request = require('request')
 // https://github.com/cheeriojs/cheerio
 import cheerio = require('cheerio')
 import * as fs from "fs"
+import Rx from 'rxjs-es/Rx';
 // import _ = require('lodash')
+
 
 // Based on https://stackoverflow.com/a/8486188/1440255
 function getJsonFromUrl(url = location.href, hashBased = true) {

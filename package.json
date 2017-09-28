@@ -8,9 +8,11 @@
     "request": "^2.81.0"
   },
   "devDependencies": {
+    "@reactivex/rxjs": "^5.4.3",
     "@types/node": "^8.0.30",
     "cheerio": "^0.22.0",
-    "request": "^2.81.0"
+    "request": "^2.81.0",
+    "rxjs-es": "^5.0.0-beta.12"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
