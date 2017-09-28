@@ -1,36 +1,19 @@
 # Goal
 
-{ name: 'Going in style',
+```{ 
+  id: 143539  
+  name: 'Going in style',
+  name.DE: 'Deutscher Titel',
   imdb: '1782901782'
   imdbRating: '5.5' 
   meta: '55' 
-  genre: 
+  genres: ['8', '14', '31'],
   watchlist: true
 }
 
 
-{ name: 'Going in style',
-  name.DE: 'Deutscher Titel',
-  '2017-05-24': {
-       '15:30': '2_72146', 
-       or maybe:
-                '15:30': { id: '2_72146', screen: '4', tech: '3D', 
-       '17:45': '2_72148',
-       '20:00': '2_72155' 
-  }
-  '2017-05-25':
-  {
-       '15:40': '2_72146', 
-       '18:45': '2_72148',
-  }
-
-}
-
-# Goal object:
 {
-name: 'The Limehouse Golem',
 id: 143539,
-genres: ['8', '14', '31'],
 showtimes: {
     '2017-99-99': {
         '16:30': [{
@@ -64,9 +47,11 @@ showtimes: {
             },
         }
     }
+```
 
 # Next Step
-- chain request programDetails
+- Obverable error: Subscriber.js:242
+   TypeError: Cannot read property 'parent' of null
 - refactor chain -> observables
     https://www.youtube.com/watch?v=Tux1nhBPl_w
     https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
