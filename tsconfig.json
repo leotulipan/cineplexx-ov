@@ -2,8 +2,9 @@
     "compileOnSave": true,
     "compilerOptions": {
         "rootDir": "src",
-        "target": "es5",
-        "module": "commonjs",
+        "target": "es2015",
+        "module": "es2015",
+        "moduleResolution": "node",
         "outDir": "js/",
         "sourceMap": true,
         "watch": true,
@@ -13,7 +14,8 @@
         "baseUrl": "./",
         "paths": {
             "src/*": ["src/*"]
-        }
+        },
+        "allowSyntheticDefaultImports": true
     },
     "exclude": [
         "node_modules",

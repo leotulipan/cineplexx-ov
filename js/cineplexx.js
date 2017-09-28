@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var request = require("request");
 // https://github.com/cheeriojs/cheerio
 var cheerio = require("cheerio");
+// import * as Rx from 'rxjs-es/Rx'
+var Rx = require("@reactivex/rxjs");
 // import _ = require('lodash')
 // Based on https://stackoverflow.com/a/8486188/1440255
 function getJsonFromUrl(url, hashBased) {
@@ -132,33 +134,66 @@ var Cineplexx = (function () {
 }()); // class Cineplexx
 var cineplexx = new Cineplexx();
 getData();
-function getData() {
-    // Get all available dates from dropdown named "date" (option value)
-    request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
-        cineplexx.today +
-        '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail', function (error, response, body) {
-        // Get all available dates from the #date dropdown
-        // console.log('error:', error); // Print the error if one occurred
-        // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-        var $ = cheerio.load(body);
-        var allDates = [];
-        $("[name=date] > option").each(function (i, element) {
-            // console.dir($(this).val())
-            if ($(this).val())
-                allDates.push($(this).val());
-        });
-        // cineplexx.dates = allDates
-        // debug: only check today
-        cineplexx.dates = [cineplexx.today];
-        cineplexx.dates.forEach(function (date) {
-            cineplexx.OVcenter.forEach(function (center) {
-                console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date);
-                getMovies(center, date);
-                // next function in the chain
-                // chain();
-            });
+function parseAllDates(body) {
+    // Get all available dates from the #date dropdown
+    // console.log('error:', error); // Print the error if one occurred
+    // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+    var $ = cheerio.load(body);
+    var allDates = [];
+    $("[name=date] > option").each(function (i, element) {
+        // console.dir($(this).val())
+        if ($(this).val())
+            allDates.push($(this).val());
+    });
+    // cineplexx.dates = allDates
+    // debug: only check today
+    cineplexx.dates = [cineplexx.today];
+    cineplexx.dates.forEach(function (date) {
+        cineplexx.OVcenter.forEach(function (center) {
+            console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date);
+            // getMovies(center, date)
+            // next function in the chain
+            // chain();
         });
     });
+}
+function getData() {
+    // const readdir = Rx.Observable.bindNodeCallback(fs.readdir);
+    // const source = readdir('./');
+    var httpReq = Rx.Observable.bindCallback(request.get);
+    var httpResult = httpReq({
+        uri: 'http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+            cineplexx.today +
+            '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail'
+    });
+    httpResult.subscribe(function (result) { return parseAllDates(result); }, function (error) { return console.error("Error: " + error); }, function () { return console.log('First request complete'); });
+    // Get all available dates from dropdown named "date" (option value)
+    // request.get('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+    //     cineplexx.today +
+    //     '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
+    //     (error, response, body) => {
+    //         // Get all available dates from the #date dropdown
+    //         // console.log('error:', error); // Print the error if one occurred
+    //         // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+    //         const $ = cheerio.load(body)
+    //         let allDates: Array < string > = [];
+    //         $("[name=date] > option").each(function (i, element) {
+    //             // console.dir($(this).val())
+    //             if ($(this).val())
+    //                 allDates.push($(this).val())
+    //         })
+    //         // cineplexx.dates = allDates
+    //         // debug: only check today
+    //         cineplexx.dates = [cineplexx.today]
+    //         cineplexx.dates.forEach((date) => {
+    //             cineplexx.OVcenter.forEach((center) => {
+    //                 console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
+    //                 // getMovies(center, date)
+    //                 // next function in the chain
+    //                 // chain();
+    //             });
+    //         });
+    //     })
 }
 function getMovies(center, date) {
     request('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
@@ -203,7 +238,9 @@ function getProgrammes(htmlBody) {
     console.dir(cineplexx.programmes);
     console.log("end getProgrammes");
 }
+// still needs to be refactored
 function getProgramDetails() {
+    var programmes;
     programmes.forEach(function (program, i) {
         request(program.ticketMovieInfo_url, function (error, response, body) {
             var ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3));
@@ -217,6 +254,7 @@ function getProgramDetails() {
             // next:
             //  { ... },
             // events: [] }
+            var movies;
             programmes[i]["plan"] = ticketMovieInfo.plan;
             programmes[i]["technology"] = ticketMovieInfo.technology;
             programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
@@ -228,7 +266,5 @@ function getProgramDetails() {
             console.dir(programmes[i]);
         });
     });
-    // not here, because async
-    // console.dir(programmes)
 }
 //# sourceMappingURL=cineplexx.js.map
