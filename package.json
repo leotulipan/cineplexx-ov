@@ -4,6 +4,7 @@
   "description": "Get Cineplexx.at OV listings",
   "main": "js/cineplexx.js",
   "dependencies": {
+    "@types/request": "^2.0.3",
     "lodash": "^4.17.4",
     "request": "^2.81.0"
   },
