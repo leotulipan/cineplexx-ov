@@ -1,10 +1,18 @@
-import * as request from 'request'
+// var request = require('request');
 // https://github.com/cheeriojs/cheerio
 import * as cheerio from 'cheerio'
 import * as fs from 'fs'
 // import * as Rx from 'rxjs-es/Rx'
-import * as Rx from '@reactivex/rxjs'
+// import * as Rx from '@reactivex/rxjs'
+import {
+    RxHR
+}
+from "@akanass/rx-http-request"
 
+const DEBUG = true;
+
+// I love ruby http://www.railstips.org/blog/archives/2008/12/01/unless-the-abused-ruby-conditional/
+var unless = condition => !condition
 
 // Based on https://stackoverflow.com/a/8486188/1440255
 function getJsonFromUrl(url = location.href, hashBased = true) {
@@ -133,49 +141,18 @@ class Cineplexx {
 let cineplexx = new Cineplexx();
 getData();
 
-
-function parseAllDates(body) {
-    // Get all available dates from the #date dropdown
-    // console.log('error:', error); // Print the error if one occurred
-    // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    const $ = cheerio.load(body)
-    let allDates: Array < string > = [];
-
-    $("[name=date] > option").each(function (i, element) {
-        // console.dir($(this).val())
-        if ($(this).val())
-            allDates.push($(this).val())
-    })
-
-    // cineplexx.dates = allDates
-    // debug: only check today
-    cineplexx.dates = [cineplexx.today]
-
-    cineplexx.dates.forEach((date) => {
-        cineplexx.OVcenter.forEach((center) => {
-            console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
-            // getMovies(center, date)
-
-            // next function in the chain
-            // chain();
-        });
-    });
-}
-
-
 function getData() {
     // const readdir = Rx.Observable.bindNodeCallback(fs.readdir);
     // const source = readdir('./');
 
-    var httpReq = Rx.Observable.bindCallback(request.get);
-    var httpResult = httpReq({
-        uri: 'http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
-            cineplexx.today +
-            '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail'
-    });
-
-    httpResult.subscribe(result => parseAllDates(result),
-        error => console.error("Error: " + error),
+    // RXJS OBSERVABLE TEST CODE
+    //
+    //
+    RxHR.get('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+        cineplexx.today +
+        '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail'
+    ).subscribe(data => parseAllDates(data),
+        err => console.error("Error: " + err),
         () => console.log('First request complete'));
 
     // Get all available dates from dropdown named "date" (option value)
@@ -211,6 +188,35 @@ function getData() {
     //         });
 
     //     })
+}
+
+function parseAllDates(body) {
+    // Get all available dates from the #date dropdown
+    // console.log('error:', error); // Print the error if one occurred
+    // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
+    const $ = cheerio.load(body)
+    let allDates: Array < string > = [];
+
+    $("[name=date] > option").each(function (i, element) {
+        // console.dir($(this).val())
+        if ($(this).val())
+            allDates.push($(this).val())
+    })
+
+    // cineplexx.dates = allDates
+    // debug: only check today
+    cineplexx.dates = [cineplexx.today]
+
+    cineplexx.dates.forEach((date) => {
+        cineplexx.OVcenter.forEach((center) => {
+
+            if (DEBUG) console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
+            // getMovies(center, date)
+
+            // next function in the chain
+            // chain();
+        });
+    });
 }
 
 function getMovies(center, date) {
