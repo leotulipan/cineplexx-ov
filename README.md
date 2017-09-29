@@ -1,6 +1,7 @@
 # Goal
 
-```{ 
+```
+{ 
   id: 143539  
   name: 'Going in style',
   name.DE: 'Deutscher Titel',

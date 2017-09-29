@@ -1,10 +1,9 @@
 import * as request from 'request'
 // https://github.com/cheeriojs/cheerio
-import cheerio = require('cheerio')
+import * as cheerio from 'cheerio'
 import * as fs from 'fs'
 // import * as Rx from 'rxjs-es/Rx'
-import * as Rx from '@reactivex/rxjs';
-// import _ = require('lodash')
+import * as Rx from '@reactivex/rxjs'
 
 
 // Based on https://stackoverflow.com/a/8486188/1440255
