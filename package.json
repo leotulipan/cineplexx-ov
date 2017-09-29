@@ -4,14 +4,13 @@
   "description": "Get Cineplexx.at OV listings",
   "main": "js/cineplexx.js",
   "dependencies": {
-    "@types/request": "^2.0.3",
-    "request": "^2.81.0"
+    "@akanass/rx-http-request": "^2.6.0",
+    "rxjs": "^5.4.3"
   },
   "devDependencies": {
     "@reactivex/rxjs": "^5.4.3",
     "@types/node": "^8.0.30",
-    "cheerio": "^0.22.0",
-    "request": "^2.81.0"
+    "cheerio": "^0.22.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
