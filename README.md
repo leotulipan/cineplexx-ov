@@ -51,9 +51,9 @@ showtimes: {
 ```
 
 # Next Step
-- Obverable error: Subscriber.js:242
-   TypeError: Cannot read property 'parent' of null
-- refactor chain -> observables
+- rx-http-ify the getMovies function
+- we will need to Observer.create at some point so we can call the dates/ovCenter loop only once we actually have the dates request. same for movies and movie info and finally the ouput
+- observables Info:
     https://www.youtube.com/watch?v=Tux1nhBPl_w
     https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
     http://reactivex.io/rxjs/manual/overview.html
