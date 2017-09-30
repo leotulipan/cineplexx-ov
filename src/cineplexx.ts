@@ -1,9 +1,9 @@
-// var request = require('request');
+var request = require('request');
 // https://github.com/cheeriojs/cheerio
 import * as cheerio from 'cheerio'
 import * as fs from 'fs'
 // import * as Rx from 'rxjs-es/Rx'
-// import * as Rx from '@reactivex/rxjs'
+import * as Rx from '@reactivex/rxjs'
 import {
     RxHR
 }
@@ -153,21 +153,30 @@ class Cineplexx {
 } // class Cineplexx
 
 let cineplexx = new Cineplexx();
+let $: any;
 
-/**
- * getDates calls programm.php and subscribes to the response, so parseDates can be called
- * 
- */
-function getDates() {
-    RxHR.get('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
-        cineplexx.today +
-        '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail'
-    ).subscribe(data => parseDates(data),
-        err => console.error("Error: " + err),
-        () => {
-            if (DEBUG) console.log('getDates() request complete')
-        });
-}
+function getDates(): Rx.Observable < any > {
+    if (DEBUG) console.log(" obs getDates create")
+    return Rx.Observable.create((observer) => {
+        request('http://www.cineplexx.at/service/program.php?type=program&centerId=2&date=' +
+            cineplexx.today +
+            '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
+            (error, response, body) => {
+                if (error) {
+                    observer.onError();
+                } else {
+                    // observer.onNext({
+                    //     response: response,
+                    //     body: body
+                    // });
+                    if (DEBUG) console.log(' obs getDates next')
+                    observer.next(parseDates(body))
+                }
+                if (DEBUG) console.log(' obs getDates complete')
+                observer.complete();
+            })
+    });
+};
 
 /**
  * parseDates parses the available dates from a given html document
@@ -176,9 +185,11 @@ function getDates() {
  * @param {any} body 
  */
 function parseDates(body) {
+    if (DEBUG) console.log('  parseDates start')
     // console.log('error:', error); // Print the error if one occurred
     // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-    const $ = cheerio.load(body)
+    $ = cheerio.load(body)
+
     let allDates: Array < string > = [];
 
     $("[name=date] > option").each(function (i, element) {
@@ -186,38 +197,42 @@ function parseDates(body) {
         if ($(this).val())
             allDates.push($(this).val())
     })
-
-    // cineplexx.dates = allDates
     // debug: only check today
     if (DEBUG) cineplexx.dates = [cineplexx.today]
+    else cineplexx.dates = allDates
+    if (DEBUG) console.log("  parseDates: " + allDates)
+    return cineplexx.dates
 }
 
 function getMovies(center, date) {
+    RxHR.get('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
+            center + '&date=' + date +
+            '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail')
+        .subscribe(data => parseMovies(data),
+            err => console.error("Error: " + err),
+            () => {
+                if (DEBUG) console.log('getMovies() request complete')
+            });
+}
 
-    request('http://www.cineplexx.at/service/program.php?type=program&centerId=' +
-        center + '&date=' + date +
-        '&originalVersionTypeFilter=OV&sorting=alpha&undefined=Alle&view=detail',
-        function (error, response, body) {
-            if (error)
-                console.log('Request error: ', error)
-            // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
-            const $ = cheerio.load(body)
-
-            let movies = {}
-            $("div.overview-element").map(function (i, el) {
-                let name = $(this).find(".three-lines p").eq(0).text()
-                let movieId = $(this).data("mainid")
-                let genreIds = String($(this).data("genre")).split(" ")
-
-                return movies[movieId] = {
-                    name: name,
-                    genres: genreIds,
-                }
-            })
-            cineplexx.movies = movies
-            console.dir(cineplexx.movies)
-            getProgrammes($)
-        })
+function parseMovies(body) {
+    $ = cheerio.load(body)
+    if (DEBUG) console.log($("div.overview-element").length)
+    let movies
+    $("div.overview-element").map(function (i, el) {
+        let name = $(this).find(".three-lines p").eq(0).text()
+        if (DEBUG) console.log("Name: " + name)
+        let movieId = $(this).data("mainid")
+        let genreIds = String($(this).data("genre")).split(" ")
+        return movies[movieId] = {
+            name: name,
+            genres: genreIds,
+        }
+    })
+    cineplexx.movies = movies
+    if (DEBUG) console.log("Movies: ")
+    if (DEBUG) console.dir(cineplexx.movies)
+    getProgrammes($)
 }
 
 function getProgrammes(htmlBody) {
@@ -240,8 +255,8 @@ function getProgrammes(htmlBody) {
             ticketMovieInfo_url: ticketMovieInfo_url,
         }
     }).get()].filter(String)[0]
-    console.dir(cineplexx.programmes)
-    console.log("end getProgrammes")
+    if (DEBUG) console.log("Programmes: ")
+    if (DEBUG) console.dir(cineplexx.programmes)
 }
 
 // still needs to be refactored
@@ -286,19 +301,20 @@ function getProgramDetails() {
  */
 function main() {
 
-    getDates()
+    getDates().subscribe(() => {
+        if (DEBUG) console.log('main() getDates() subscribe loop')
+        // because async, this is actually just filled with "today" thanks to the constructor    
+        cineplexx.dates.forEach((date) => {
+            cineplexx.OVcenter.forEach((center) => {
 
-    // because async, this is actually just filled with "today" thanks to the constructor    
-    cineplexx.dates.forEach((date) => {
-        cineplexx.OVcenter.forEach((center) => {
+                if (DEBUG) console.log(" main() checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
+                getMovies(center, date)
 
-            if (DEBUG) console.log("Checking \'" + cineplexx.getCenterName(center) + "\' on " + date)
-            // getMovies(center, date)
-
-            // next function in the chain
-            // chain();
+                // next function in the chain
+                // chain();
+            });
         });
-    });
+    })
 }
 
 main();
