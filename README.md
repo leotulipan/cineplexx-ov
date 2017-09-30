@@ -51,9 +51,10 @@ showtimes: {
 ```
 
 # Next Step
-- rx-http-ify the getMovies function
-- we will need to Observer.create at some point so we can call the dates/ovCenter loop only once we actually have the dates request. same for movies and movie info and finally the ouput
+- Line 311: observer-ify getMovies
+
 - observables Info:
+    chain observers with map/flatMap https://stackoverflow.com/questions/37748241/how-to-do-the-chain-sequence-in-rxjs/37748799#37748799
     https://www.youtube.com/watch?v=Tux1nhBPl_w
     https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
     http://reactivex.io/rxjs/manual/overview.html
