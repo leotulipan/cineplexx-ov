@@ -52,7 +52,7 @@ showtimes: {
 ```
 
 # Next Step
-- Line 311: observer-ify getMovies
+- Line 279: programDetails observers: sub and watch for completion: how?
 
 - observables Info:
     chain observers with map/flatMap https://stackoverflow.com/questions/37748241/how-to-do-the-chain-sequence-in-rxjs/37748799#37748799
@@ -189,7 +189,7 @@ https://www.cineplexx.at/service/ticketing.php?callback=s&center=2&prgId=74726&b
 - seats: array: check how many seats are available: https://www.cineplexx.at/service/ticketing.php?callback=jQuery19107128564620655915_1505196280356&center=2&prgId=74553&backendUrl=rest%2Fcinema%2Fseats&_=1505196280358
 seats[row][seat].status == 0 ? "available" : "reserved"
 - program/film status green array http://www.cineplexx.at/service/dynamicFilterData.php?callback=status&movie=143827
-
+- [this might solve the Promise errors from rxjs](https://github.com/ReactiveX/rxjs/issues/2422)
 # Starting dev (first time)
 
 npm init => create empty package.json
