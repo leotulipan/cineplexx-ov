@@ -190,6 +190,9 @@ https://www.cineplexx.at/service/ticketing.php?callback=s&center=2&prgId=74726&b
 seats[row][seat].status == 0 ? "available" : "reserved"
 - program/film status green array http://www.cineplexx.at/service/dynamicFilterData.php?callback=status&movie=143827
 - [this might solve the Promise errors from rxjs](https://github.com/ReactiveX/rxjs/issues/2422)
+
+- Periodic Check: Unser reguläres Kinoprogramm wird wöchentlich neu erstellt und immer am Dienstagabend für die folgende Kinowoche (Freitag bis Donnerstag) online gestellt. 
+            
 # Starting dev (first time)
 
 npm init => create empty package.json

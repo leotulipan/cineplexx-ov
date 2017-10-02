@@ -188,6 +188,15 @@ function parseDates(body) {
     // console.log('statusCode:', response && response.statusCode); // Print the response status code if a response was received
     $ = cheerio.load(body)
 
+    // Check for empty return:
+    // <div class="detailview-element">
+    // Für die aktuelle Auswahl sind keine Filme vorhanden.</div>
+    if ($("div.detailview-element").eq(0).text().match("keine Filme vorhanden").length) {
+        if (DEBUG) console.log("No Movies found in programm.php")
+        cineplexx.dates = []
+        return false
+    }
+
     let allDates: Array < string > = [];
 
     $("[name=date] > option").each(function (i, element) {
@@ -217,7 +226,7 @@ function getMovieDetails(center, date): Rx.Observable < any > {
                     getProgrammes(body)
 
                     // needs to sub to all the observers that get created?
-                    getProgramDetails()
+                    // getProgramDetails()
                     // observer.next()
                 }
                 if (DEBUG) console.log(' obs getMovieDetails complete')
@@ -267,13 +276,13 @@ function getProgrammes(body) {
             ticketMovieInfo_url: ticketMovieInfo_url,
         }
     }).get()].filter(String)[0]
-    // if (DEBUG) console.log("Programmes: ")
-    // if (DEBUG) console.dir(cineplexx.programmes)
+    // if (DEBUG) console.log("Programmes: " + cineplexx.programmes)
+    if (DEBUG) console.dir(cineplexx.programmes)
 }
 
 // still needs to be refactored
 function getProgramDetails() {
-    if (DEBUG) console.log('  getProgramDetails #s:' + cineplexx.programmes.length)
+    if (DEBUG) console.log('  getProgramDetails')
     // var programmes
     cineplexx.programmes.forEach(function (program, i) {
         Rx.Observable.create((observer) => {
