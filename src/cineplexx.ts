@@ -191,7 +191,8 @@ function parseDates(body) {
     // Check for empty return:
     // <div class="detailview-element">
     // Für die aktuelle Auswahl sind keine Filme vorhanden.</div>
-    if ($("div.detailview-element").eq(0).text().match("keine Filme vorhanden").length) {
+    // null if not found, otherwise we get some return value
+    if ($("div.detailview-element").eq(0).text().match("keine Filme vorhanden")) {
         if (DEBUG) console.log("No Movies found in programm.php")
         cineplexx.dates = []
         return false
@@ -226,8 +227,8 @@ function getMovieDetails(center, date): Rx.Observable < any > {
                     getProgrammes(body)
 
                     // needs to sub to all the observers that get created?
-                    // getProgramDetails()
-                    // observer.next()
+                    //getProgramDetails()
+                    observer.next()
                 }
                 if (DEBUG) console.log(' obs getMovieDetails complete')
                 observer.complete();
@@ -259,6 +260,7 @@ function getProgrammes(body) {
     $ = cheerio.load(body)
 
     cineplexx.programmes = [$(".overview-element .start-times a").map(function (i, el) {
+        console.log("Parsing: " + $(this).attr("href"))
 
         let movieId = getJsonFromUrl($(this).attr("href")).movie
         let prgId = getJsonFromUrl($(this).attr("href")).prgid
@@ -276,8 +278,8 @@ function getProgrammes(body) {
             ticketMovieInfo_url: ticketMovieInfo_url,
         }
     }).get()].filter(String)[0]
-    // if (DEBUG) console.log("Programmes: " + cineplexx.programmes)
-    if (DEBUG) console.dir(cineplexx.programmes)
+    if (DEBUG) console.log("   getProgrammes result:")
+    // if (DEBUG) console.dir(cineplexx.programmes)
 }
 
 // still needs to be refactored
@@ -311,8 +313,8 @@ function getProgramDetails() {
                     cineplexx.programmes[i]["technologyId"] = ticketMovieInfo.technologyId
                     cineplexx.programmes[i]["time"] = ticketMovieInfo.time
                     cineplexx.programmes[i]["status"] = ticketMovieInfo.status
-                    cineplexx.programmes[i]["name"] = cineplexx.movies[programmes[i]["movieId"]].name
-                    cineplexx.programmes[i]["genres"] = cineplexx.movies[programmes[i]["movieId"]].genres
+                    cineplexx.programmes[i]["name"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].name
+                    cineplexx.programmes[i]["genres"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].genres
 
                     console.dir(cineplexx.programmes[i])
                 }
