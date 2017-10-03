@@ -227,9 +227,9 @@ function getMovieDetails(center, date) {
                     console.log(' obs getMovieDetails next');
                 parseMovies(body);
                 getProgrammes(body);
-                // needs to sub to all the observers that get created?
-                //getProgramDetails()
-                observer.next();
+                getProgramDetails().subscribe(function () {
+                    observer.next();
+                });
             }
             if (DEBUG)
                 console.log(' obs getMovieDetails complete');
@@ -285,17 +285,21 @@ function getProgrammes(body) {
             };
         }).get()].filter(String)[0];
     if (DEBUG)
-        console.log("   getProgrammes result:");
-    if (DEBUG)
-        console.dir(cineplexx.programmes);
+        console.log("   getProgrammes #:" + cineplexx.programmes.length);
 }
-// still needs to be refactored
+/**
+ *
+ *
+ * @returns {Rx.Observable < any >}
+ */
 function getProgramDetails() {
     if (DEBUG)
         console.log('  getProgramDetails');
-    // var programmes
+    // do a observable MAP or CONCAT to get each sequential program result one after the other
     cineplexx.programmes.forEach(function (program, i) {
-        Rx.Observable.create(function (observer) {
+        return Rx.Observable.create(function (observer) {
+            if (DEBUG)
+                console.log("Creating getProgramDetails obs #" + i);
             request(program.ticketMovieInfo_url, function (error, response, body) {
                 if (error) {
                     observer.error();

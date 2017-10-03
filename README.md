@@ -52,7 +52,8 @@ showtimes: {
 ```
 
 # Next Step
-- Line 279: programDetails observers: sub and watch for completion: how?
+- Line 302: "join" multiple observers to return one observer to subscribe to
+    maybe http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-map
 
 - observables Info:
     chain observers with map/flatMap https://stackoverflow.com/questions/37748241/how-to-do-the-chain-sequence-in-rxjs/37748799#37748799
