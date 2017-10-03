@@ -256,16 +256,24 @@ function parseMovies(body) {
     return cineplexx.movies
 }
 
+
+/**
+ * getProgrammes gets the info for each program from the URL string
+ * 2017-10-03 Url changed to new format
+ * 
+ * @param {any} body HTML Body to parse
+ */
 function getProgrammes(body) {
     $ = cheerio.load(body)
 
     cineplexx.programmes = [$(".overview-element .start-times a").map(function (i, el) {
-        console.log("Parsing: " + $(this).attr("href"))
 
-        let movieId = getJsonFromUrl($(this).attr("href")).movie
-        let prgId = getJsonFromUrl($(this).attr("href")).prgid
-        let center = getJsonFromUrl($(this).attr("href")).center
-        let date = getJsonFromUrl($(this).attr("href")).date
+        let prgUrl = $(this).attr("href").split("/")
+        //  https://www.cineplexx.at/tickets/#/center/2/movie/137032/date/2017-10-03/program/66/select
+        let movieId = prgUrl[prgUrl.indexOf("movie") + 1]
+        let prgId = prgUrl[prgUrl.indexOf("program") + 1]
+        let center = prgUrl[prgUrl.indexOf("center") + 1]
+        let date = prgUrl[prgUrl.indexOf("date") + 1]
         let ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
 
         return {
@@ -279,7 +287,7 @@ function getProgrammes(body) {
         }
     }).get()].filter(String)[0]
     if (DEBUG) console.log("   getProgrammes result:")
-    // if (DEBUG) console.dir(cineplexx.programmes)
+    if (DEBUG) console.dir(cineplexx.programmes)
 }
 
 // still needs to be refactored
