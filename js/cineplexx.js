@@ -228,6 +228,7 @@ function getMovieDetails(center, date) {
                 parseMovies(body);
                 getProgrammes(body);
                 getProgramDetails().subscribe(function () {
+                    console.log(" obs getMovieDetails sub getProgramDetails");
                     observer.next();
                 });
             }
@@ -287,6 +288,37 @@ function getProgrammes(body) {
     if (DEBUG)
         console.log("   getProgrammes #:" + cineplexx.programmes.length);
 }
+function parseProgramDetails(error, response, body, i) {
+    if (error) {
+        return error;
+    }
+    else {
+        if (DEBUG)
+            console.log('   parseProgramDetails #' + i);
+        var ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3));
+        var program = [];
+        // { date: 'Heute, 22. September 2017',
+        // time: '17:30',
+        // technology: 'Digital 2D',
+        // technologyId: 1,
+        // plan: 'Saal 5',
+        // status: 'green',
+        // prgCount: 1,
+        // next:
+        //  { ... },
+        // events: [] }
+        // we need to actually find the cineplexx.programmes[i] this belongs to - maybe via unique prgId
+        cineplexx.programmes[i]["plan"] = ticketMovieInfo.plan;
+        cineplexx.programmes[i]["technology"] = ticketMovieInfo.technology;
+        cineplexx.programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
+        cineplexx.programmes[i]["time"] = ticketMovieInfo.time;
+        cineplexx.programmes[i]["status"] = ticketMovieInfo.status;
+        cineplexx.programmes[i]["name"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].name;
+        cineplexx.programmes[i]["genres"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].genres;
+    }
+    // if (DEBUG) console.log(' obs getProgramDetails complete')
+    return true;
+}
 /**
  *
  *
@@ -295,45 +327,23 @@ function getProgrammes(body) {
 function getProgramDetails() {
     if (DEBUG)
         console.log('  getProgramDetails');
+    var obs = Rx.Observable.create(function (observer) {
+        console.log("  getProgramDetails original obs");
+    });
     // do a observable MAP or CONCAT to get each sequential program result one after the other
     cineplexx.programmes.forEach(function (program, i) {
-        return Rx.Observable.create(function (observer) {
+        if (DEBUG)
+            console.log('  getProgramDetails p#' + i);
+        var obsProgram = Rx.Observable.create(function (observer) {
             if (DEBUG)
                 console.log("Creating getProgramDetails obs #" + i);
             request(program.ticketMovieInfo_url, function (error, response, body) {
-                if (error) {
-                    observer.error();
-                }
-                else {
-                    if (DEBUG)
-                        console.log(' obs getProgramDetails next');
-                    var ticketMovieInfo = JSON.parse(body.substr(2, body.length - 3));
-                    // { date: 'Heute, 22. September 2017',
-                    // time: '17:30',
-                    // technology: 'Digital 2D',
-                    // technologyId: 1,
-                    // plan: 'Saal 5',
-                    // status: 'green',
-                    // prgCount: 1,
-                    // next:
-                    //  { ... },
-                    // events: [] }
-                    // var movies
-                    cineplexx.programmes[i]["plan"] = ticketMovieInfo.plan;
-                    cineplexx.programmes[i]["technology"] = ticketMovieInfo.technology;
-                    cineplexx.programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
-                    cineplexx.programmes[i]["time"] = ticketMovieInfo.time;
-                    cineplexx.programmes[i]["status"] = ticketMovieInfo.status;
-                    cineplexx.programmes[i]["name"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].name;
-                    cineplexx.programmes[i]["genres"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].genres;
-                    console.dir(cineplexx.programmes[i]);
-                }
-                if (DEBUG)
-                    console.log(' obs getProgramDetails complete');
-                observer.complete();
+                parseProgramDetails(error, response, body, i);
             });
         });
+        obs = obs.concat(obsProgram);
     });
+    return obs;
 }
 /**
  * The main function where our code gets executed
