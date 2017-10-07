@@ -5,6 +5,10 @@ var request = require('request');
 var cheerio = require("cheerio");
 // import * as Rx from 'rxjs-es/Rx'
 var Rx = require("@reactivex/rxjs");
+// import {
+//     RxHR
+// }
+// from "@akanass/rx-http-request"
 var DEBUG = true;
 // I love ruby http://www.railstips.org/blog/archives/2008/12/01/unless-the-abused-ruby-conditional/
 var unless = function (condition) { return !condition; };
@@ -227,10 +231,7 @@ function getMovieDetails(center, date) {
                     console.log(' obs getMovieDetails next');
                 parseMovies(body);
                 getProgrammes(body);
-                getProgramDetails().subscribe(function () {
-                    console.log(" obs getMovieDetails sub getProgramDetails");
-                    observer.next();
-                });
+                observer.next();
             }
             if (DEBUG)
                 console.log(' obs getMovieDetails complete');
@@ -327,23 +328,33 @@ function parseProgramDetails(error, response, body, i) {
 function getProgramDetails() {
     if (DEBUG)
         console.log('  getProgramDetails');
-    var obs = Rx.Observable.create(function (observer) {
-        console.log("  getProgramDetails original obs");
-    });
-    // do a observable MAP or CONCAT to get each sequential program result one after the other
+    var obsProgram = [];
     cineplexx.programmes.forEach(function (program, i) {
         if (DEBUG)
             console.log('  getProgramDetails p#' + i);
-        var obsProgram = Rx.Observable.create(function (observer) {
+        // Request as Observable syntax copied from https://github.com/Alex0007/request-observable/blob/master/index.ts
+        // We are creating an array of observables and each does
+        // - parse one ticketMovieInfo_url
+        // - call parseProgramDetails with the resulting html
+        // - Add the data to our cineplexx.programmes var
+        obsProgram.push(Rx.Observable.create(function (observer) {
             if (DEBUG)
                 console.log("Creating getProgramDetails obs #" + i);
             request(program.ticketMovieInfo_url, function (error, response, body) {
-                parseProgramDetails(error, response, body, i);
+                if (error) {
+                    observer.error(error);
+                }
+                else {
+                    if (DEBUG)
+                        console.log("getProgramDetails obs req #" + i);
+                    observer.next(parseProgramDetails(error, response, body, i));
+                }
+                observer.complete();
             });
-        });
-        obs = obs.concat(obsProgram);
+        }));
     });
-    return obs;
+    // Join all observables into one master observable which we return and can subscribe to
+    return Rx.Observable.forkJoin(obsProgram);
 }
 /**
  * The main function where our code gets executed
@@ -359,7 +370,15 @@ function main() {
             cineplexx.OVcenter.forEach(function (center) {
                 if (DEBUG)
                     console.log("  main() \'" + cineplexx.getCenterName(center) + "\'");
-                getMovieDetails(center, date).subscribe(function () { });
+                getMovieDetails(center, date).subscribe(function () {
+                    if (DEBUG)
+                        console.log(" obs getMovieDetails subscribe");
+                    getProgramDetails().subscribe(function () {
+                        if (DEBUG)
+                            console.log(" obs getProgramDetails sub");
+                        console.dir(cineplexx.programmes);
+                    });
+                });
             });
         });
     });
