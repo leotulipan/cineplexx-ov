@@ -52,18 +52,8 @@ showtimes: {
 ```
 
 # Next Step
-- Line 335: "join"/concat/flatMap/SwitchMap - but how?
-    maybe http://reactivex.io/rxjs/class/es6/Observable.js~Observable.html#instance-method-map
-
+- clean up by forkJoin-ing getMovieDetails & getProgramDetails?
 - interface for program and movies
-
-- observables Info:
-    chain observers with map/flatMap https://stackoverflow.com/questions/37748241/how-to-do-the-chain-sequence-in-rxjs/37748799#37748799
-    https://www.youtube.com/watch?v=Tux1nhBPl_w
-    https://www.udemy.com/the-complete-guide-to-angular-2/learn/v4/t/lecture/6656534?start=0
-    http://reactivex.io/rxjs/manual/overview.html
-    https://www.academind.com/articles/javascript/callbacks-promises-observables-async-await
-
 - get avail seats for prgid from seats array:
 
 https://www.cineplexx.at/service/ticketing.php?callback=jQuery19102461141216697098_1505981639843&center=2&prgId=74723&backendUrl=rest%2Fcinema%2Fseats&_=1505981639845
