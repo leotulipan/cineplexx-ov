@@ -10,6 +10,11 @@ var Rx = require("@reactivex/rxjs");
 // }
 // from "@akanass/rx-http-request"
 var DEBUG = true;
+var seats_status = {
+    NOT_AVAILABLE: 0,
+    AVAILABLE: 1,
+    SOLD: 0
+};
 // I love ruby http://www.railstips.org/blog/archives/2008/12/01/unless-the-abused-ruby-conditional/
 var unless = function (condition) { return !condition; };
 /**
@@ -276,6 +281,7 @@ function getProgrammes(body) {
             var center = prgUrl[prgUrl.indexOf("center") + 1];
             var date = prgUrl[prgUrl.indexOf("date") + 1];
             var ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId;
+            var seat_url = "https://www.cineplexx.at/restV/cinemas/" + center + "/program/" + prgId + "/seat-selection-view/";
             return {
                 movieId: movieId,
                 prgId: prgId,
@@ -284,6 +290,7 @@ function getProgrammes(body) {
                 // time: $(this).find("p").eq(0).text().substr(1, 5),
                 // plan: $(this).find("p.room-desc").text(),
                 ticketMovieInfo_url: ticketMovieInfo_url,
+                seat_url: seat_url,
             };
         }).get()].filter(String)[0];
     if (DEBUG)
@@ -308,7 +315,6 @@ function parseProgramDetails(error, response, body, i) {
         // next:
         //  { ... },
         // events: [] }
-        // we need to actually find the cineplexx.programmes[i] this belongs to - maybe via unique prgId
         cineplexx.programmes[i]["plan"] = ticketMovieInfo.plan;
         cineplexx.programmes[i]["technology"] = ticketMovieInfo.technology;
         cineplexx.programmes[i]["technologyId"] = ticketMovieInfo.technologyId;
@@ -357,6 +363,13 @@ function getProgramDetails() {
     return Rx.Observable.forkJoin(obsProgram);
 }
 /**
+ *
+ *
+ * @returns {Rx.Observable < any >}
+ */
+function getSeats() {
+}
+/**
  * The main function where our code gets executed
  *
  */
@@ -376,7 +389,10 @@ function main() {
                     getProgramDetails().subscribe(function () {
                         if (DEBUG)
                             console.log(" obs getProgramDetails sub");
-                        console.dir(cineplexx.programmes);
+                        getSeats(cineplexx.programmes[0].seat_url).subscribe(function () {
+                            if (DEBUG)
+                                console.log("read seating for program " + cineplexx.programmes[0].name);
+                        });
                     });
                 });
             });

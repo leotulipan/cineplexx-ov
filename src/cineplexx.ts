@@ -11,6 +11,12 @@ import * as Rx from '@reactivex/rxjs'
 
 const DEBUG = true;
 
+const seats_status = {
+    NOT_AVAILABLE: 0,
+    AVAILABLE: 1,
+    SOLD: 0
+}
+
 // I love ruby http://www.railstips.org/blog/archives/2008/12/01/unless-the-abused-ruby-conditional/
 var unless = condition => !condition
 
@@ -273,6 +279,7 @@ function getProgrammes(body) {
         let center = prgUrl[prgUrl.indexOf("center") + 1]
         let date = prgUrl[prgUrl.indexOf("date") + 1]
         let ticketMovieInfo_url = "https://www.cineplexx.at/rest/cinema/ticketMovieInfo?callback=t&center=" + center + "&movie=" + movieId + "&date=" + date + "&prgId=" + prgId
+        let seat_url = "https://www.cineplexx.at/restV/cinemas/" + center + "/program/" + prgId + "/seat-selection-view/"
 
         return {
             movieId: movieId,
@@ -282,6 +289,7 @@ function getProgrammes(body) {
             // time: $(this).find("p").eq(0).text().substr(1, 5),
             // plan: $(this).find("p.room-desc").text(),
             ticketMovieInfo_url: ticketMovieInfo_url,
+            seat_url: seat_url,
         }
     }).get()].filter(String)[0]
     if (DEBUG) console.log("   getProgrammes #:" + cineplexx.programmes.length)
@@ -308,7 +316,6 @@ function parseProgramDetails(error, response, body, i) {
         //  { ... },
         // events: [] }
 
-        // we need to actually find the cineplexx.programmes[i] this belongs to - maybe via unique prgId
         cineplexx.programmes[i]["plan"] = ticketMovieInfo.plan
         cineplexx.programmes[i]["technology"] = ticketMovieInfo.technology
         cineplexx.programmes[i]["technologyId"] = ticketMovieInfo.technologyId
@@ -316,7 +323,6 @@ function parseProgramDetails(error, response, body, i) {
         cineplexx.programmes[i]["status"] = ticketMovieInfo.status
         cineplexx.programmes[i]["name"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].name
         cineplexx.programmes[i]["genres"] = cineplexx.movies[cineplexx.programmes[i]["movieId"]].genres
-
 
     }
     // if (DEBUG) console.log(' obs getProgramDetails complete')
@@ -360,6 +366,15 @@ function getProgramDetails(): Rx.Observable < any > {
 }
 
 /**
+ * 
+ * 
+ * @returns {Rx.Observable < any >} 
+ */
+function getSeats(): Rx.Observable < any > {
+
+}
+
+/**
  * The main function where our code gets executed
  * 
  */
@@ -375,12 +390,16 @@ function main() {
                     if (DEBUG) console.log(" obs getMovieDetails subscribe")
                     getProgramDetails().subscribe(() => {
                         if (DEBUG) console.log(" obs getProgramDetails sub")
-                        console.dir(cineplexx.programmes)
+                        getSeats(cineplexx.programmes[0].seat_url).subscribe(() => {
+                            if (DEBUG) console.log("read seating for program " + cineplexx.programmes[0].name)
+                        })
                     })
                 })
             });
         });
     })
+
+
 }
 
 main();
