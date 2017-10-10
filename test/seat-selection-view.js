@@ -1,4 +1,4 @@
-demo = {
+seatselectionview = {
     "overallPrice": null,
     "priceGroups": [],
     "seats": [],
