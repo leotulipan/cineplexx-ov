@@ -367,10 +367,43 @@ function getProgramDetails(): Rx.Observable < any > {
 
 /**
  * 
+ * The JSON Object (important keys only)
+ * { seatPlan: {...},
+ *   movieTitle: 'Blade Runner 2049 OV',
+ *   programShowTime: '15:30',
+ *   programShowDate: '11. October 2017',
+ *   cinemaName: '1002',
+ *   cinemaScreenName: 'Saal 4',
+ *   seatPlanBackgroundImageName: '1002_4',
+ *   childTicketsAllowed: false }
  * 
+ *  seatPlan.areas = [ { id: 0,
+      rows:
+        [ { id: '1', bounds: [Object], seats: [Array], accurateLeft: 0 },
+          { id: 'hallway', bounds: [Object], seats: [], accurateLeft: 0 },
+          { id: '10', bounds: [Object], seats: [Array], accurateLeft: 0 },
+          { id: 'hallway', bounds: [Object], seats: [], accurateLeft: 0 },
+          { id: 'B1', bounds: [Object], seats: [Array], accurateLeft: 0 },
+          numberOfRows: 19,
+        ]
  * @returns {Rx.Observable < any >} 
  */
-function getSeats(): Rx.Observable < any > {
+function getSeats(program_i: number): Rx.Observable < any > {
+
+    return Rx.Observable.create((observer) => {
+        if (DEBUG) console.log("Creating getSeats obs #" + program_i)
+        request(cineplexx.programmes[program_i].seat_url, (error, response, body) => {
+            if (error) {
+                observer.error(error)
+            } else {
+                if (DEBUG) console.log("getSeats obs '" + cineplexx.programmes[program_i].seat_url + "'")
+                let seats = JSON.parse(body)
+                if (DEBUG) console.dir(seats.seatPlan.areas[0].rows[10].seats)
+                observer.next()
+            }
+            observer.complete()
+        })
+    })
 
 }
 
@@ -390,8 +423,8 @@ function main() {
                     if (DEBUG) console.log(" obs getMovieDetails subscribe")
                     getProgramDetails().subscribe(() => {
                         if (DEBUG) console.log(" obs getProgramDetails sub")
-                        getSeats(cineplexx.programmes[0].seat_url).subscribe(() => {
-                            if (DEBUG) console.log("read seating for program " + cineplexx.programmes[0].name)
+                        getSeats(1).subscribe(() => {
+                            if (DEBUG) console.log("read seating for program '" + cineplexx.programmes[1].name + "': " + cineplexx.programmes[1].date + cineplexx.programmes[1].time)
                         })
                     })
                 })
