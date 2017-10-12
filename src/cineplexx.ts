@@ -398,7 +398,18 @@ function getSeats(program_i: number): Rx.Observable < any > {
             } else {
                 if (DEBUG) console.log("getSeats obs '" + cineplexx.programmes[program_i].seat_url + "'")
                 let seats = JSON.parse(body)
-                if (DEBUG) console.dir(seats.seatPlan.areas[0].rows[10].seats)
+                let numberOfSeats: number = 0
+                let availableSeats: number = 0
+
+                seats.seatPlan.areas[0].rows.forEach(row => {
+                    row.seats.forEach(seat => {
+                        numberOfSeats++
+                        availableSeats += seats_status[seat.status]
+                    })
+                })
+                if (DEBUG) console.log("Seats: " + availableSeats + " of " + numberOfSeats)
+                cineplexx.programmes[program_i].availableSeats = availableSeats
+                cineplexx.programmes[program_i].numberOfSeats = numberOfSeats
                 observer.next()
             }
             observer.complete()
@@ -423,8 +434,8 @@ function main() {
                     if (DEBUG) console.log(" obs getMovieDetails subscribe")
                     getProgramDetails().subscribe(() => {
                         if (DEBUG) console.log(" obs getProgramDetails sub")
-                        getSeats(1).subscribe(() => {
-                            if (DEBUG) console.log("read seating for program '" + cineplexx.programmes[1].name + "': " + cineplexx.programmes[1].date + cineplexx.programmes[1].time)
+                        getSeats(2).subscribe(() => {
+                            if (DEBUG) console.dir(cineplexx.programmes[2])
                         })
                     })
                 })

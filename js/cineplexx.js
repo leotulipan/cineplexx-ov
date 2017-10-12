@@ -397,8 +397,18 @@ function getSeats(program_i) {
                 if (DEBUG)
                     console.log("getSeats obs '" + cineplexx.programmes[program_i].seat_url + "'");
                 var seats = JSON.parse(body);
+                var numberOfSeats_1 = 0;
+                var availableSeats_1 = 0;
+                seats.seatPlan.areas[0].rows.forEach(function (row) {
+                    row.seats.forEach(function (seat) {
+                        numberOfSeats_1++;
+                        availableSeats_1 += seats_status[seat.status];
+                    });
+                });
                 if (DEBUG)
-                    console.dir(seats.seatPlan.areas[0].rows[10].seats);
+                    console.log("Seats: " + availableSeats_1 + " of " + numberOfSeats_1);
+                cineplexx.programmes[program_i].availableSeats = availableSeats_1;
+                cineplexx.programmes[program_i].numberOfSeats = numberOfSeats_1;
                 observer.next();
             }
             observer.complete();
@@ -425,9 +435,9 @@ function main() {
                     getProgramDetails().subscribe(function () {
                         if (DEBUG)
                             console.log(" obs getProgramDetails sub");
-                        getSeats(1).subscribe(function () {
+                        getSeats(2).subscribe(function () {
                             if (DEBUG)
-                                console.log("read seating for program '" + cineplexx.programmes[1].name + "': " + cineplexx.programmes[1].date + cineplexx.programmes[1].time);
+                                console.dir(cineplexx.programmes[2]);
                         });
                     });
                 });
