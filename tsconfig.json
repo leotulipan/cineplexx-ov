@@ -28,5 +28,8 @@
         "./typings/index.d.ts",
         "./custom_typings/**/*.d.ts",
         "./node_modules/@types/**/*.d.ts"
+    ],
+    "files": [
+        "cineplexx.ts"
     ]
 }
