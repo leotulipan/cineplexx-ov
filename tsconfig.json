@@ -30,6 +30,6 @@
         "./node_modules/@types/**/*.d.ts"
     ],
     "files": [
-        "cineplexx.ts"
+        "src/cineplexx.ts"
     ]
 }
