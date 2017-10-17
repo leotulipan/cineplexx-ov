@@ -11,11 +11,44 @@ import * as Rx from '@reactivex/rxjs'
 
 const DEBUG = true;
 
+/**
+ * Interface for the program object/json
+ *  generated with http://json2ts.com/
+ */
+// declare module CineplexxNamespace {
+
+export interface CineplexxProgram {
+    movieId: number;
+    prgId: number;
+    center: number;
+    date: string;
+    ticketMovieInfo_url: string;
+    seat_url: string;
+    plan: string;
+    technology: string;
+    technologyId: number;
+    time: string;
+    status: string;
+    name: string;
+    genres: string[];
+    availableSeats: number;
+    numberOfSeats: number;
+}
+
+export interface CineplexxMovies {
+    name: string;
+    genres: string[];
+    name_DE: string;
+}
+
+// }
+
 const seats_status = {
     NOT_AVAILABLE: 0,
     AVAILABLE: 1,
     SOLD: 0
 }
+
 
 // I love ruby http://www.railstips.org/blog/archives/2008/12/01/unless-the-abused-ruby-conditional/
 var unless = condition => !condition
@@ -72,8 +105,8 @@ class Cineplexx {
     private _dates: Array < string > ;
     private _centerIds: {};
     private _OVcenter: Array < number > ;
-    private _movies: Array < {} > ;
-    private _programmes: Array < {} > ;
+    private _movies: Array < CineplexxMovies > ;
+    private _programmes: Array < CineplexxProgram > ;
 
     constructor() {
 
@@ -142,19 +175,19 @@ class Cineplexx {
         return this._centerIds[center]
     }
 
-    public get movies(): Array < {} > {
+    public get movies(): Array < CineplexxMovies > {
         return this._movies;
     }
 
-    public set movies(value: Array < {} > ) {
+    public set movies(value: Array < CineplexxMovies > ) {
         this._movies = value;
     }
 
-    public get programmes(): Array < {} > {
+    public get programmes(): Array < CineplexxProgram > {
         return this._programmes;
     }
 
-    public set programmes(value: Array < {} > ) {
+    public set programmes(value: Array < CineplexxProgram > ) {
         this._programmes = value;
     }
 
@@ -257,6 +290,7 @@ function parseMovies(body) {
     })
     cineplexx.movies = movies
     if (DEBUG) console.log("  parseMovies done")
+
     return cineplexx.movies
 }
 
@@ -435,7 +469,7 @@ function main() {
                     getProgramDetails().subscribe(() => {
                         if (DEBUG) console.log(" obs getProgramDetails sub")
                         getSeats(2).subscribe(() => {
-                            if (DEBUG) console.dir(cineplexx.programmes[2])
+                            if (DEBUG) console.log(JSON.stringify(cineplexx.movies[1]))
                         })
                     })
                 })

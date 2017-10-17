@@ -10,6 +10,7 @@ var Rx = require("@reactivex/rxjs");
 // }
 // from "@akanass/rx-http-request"
 var DEBUG = true;
+// }
 var seats_status = {
     NOT_AVAILABLE: 0,
     AVAILABLE: 1,
@@ -437,7 +438,7 @@ function main() {
                             console.log(" obs getProgramDetails sub");
                         getSeats(2).subscribe(function () {
                             if (DEBUG)
-                                console.dir(cineplexx.programmes[2]);
+                                console.log(JSON.stringify(cineplexx.movies[1]));
                         });
                     });
                 });
